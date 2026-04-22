@@ -5,54 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Velko - Регистрация</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 30px; text-align: center; }
+        h1 { color: #FACC15; margin-bottom: 5px; }
+        .role-box { display: flex; gap: 10px; margin: 20px 0; }
+        .role-btn { flex: 1; padding: 15px; border: 2px solid #333; border-radius: 10px; cursor: pointer; background: #111; color: #aaa; transition: 0.3s; }
+        .role-btn.active { border-color: #FACC15; color: #FACC15; background: #222; }
         input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 15px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; color: #000; font-size: 16px; }
-        button:active { opacity: 0.8; }
+        .main-btn { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; color: #000; font-size: 16px; }
+        .main-btn:disabled { background: #555; }
     </style>
 </head>
 <body>
-    <h1 style="color: #FACC15;">VELKO</h1>
-    <p>Регистрация курьера</p>
+    <h1>VELKO</h1>
+    <p id="step-text">Кто ты сегодня?</p>
     
+    <div class="role-box">
+        <div id="btn-client" class="role-btn" onclick="selectRole('Заказчик')">ЗАКАЗЧИК</div>
+        <div id="btn-courier" class="role-btn" onclick="selectRole('Курьер')">КУРЬЕР</div>
+    </div>
+
     <input type="text" id="name" placeholder="Твое имя">
     <input type="tel" id="phone" placeholder="Номер телефона">
     
-    <button onclick="sendData()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    <button id="send-btn" class="main-btn" onclick="sendData()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
 
     <script>
+        let selectedRole = '';
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('btn-client').className = 'role-btn' + (role === 'Заказчик' ? ' active' : '');
+            document.getElementById('btn-courier').className = 'role-btn' + (role === 'Курьер' ? ' active' : '');
+        }
+
         async function sendData() {
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
-            
-            // Твоя ссылка на Google Таблицу
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxckrWmx0mIyOStn5odC7YFaIee2WYlV2P4ajYXK3e7OPxa8WpG6zneSj3abJHoRt-a/exec';
+            const scriptUrl = 'https://google.com';
 
-            if (!name || !phone) {
-                alert('Пожалуйста, заполни имя и телефон');
-                return;
-            }
+            if (!selectedRole) { alert('Выбери роль!'); return; }
+            if (!name || !phone) { alert('Заполни поля!'); return; }
 
-            // Показываем, что процесс пошел
-            const btn = document.querySelector('button');
+            const btn = document.getElementById('send-btn');
             btn.innerText = 'ОТПРАВКА...';
             btn.disabled = true;
 
             try {
-                // Отправляем данные методом no-cors (самый простой путь для таблиц)
                 await fetch(scriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, phone: phone })
+                    body: JSON.stringify({ name: name, phone: phone, role: selectedRole })
                 });
 
-                alert('ГОТОВО! Теперь проверь свою таблицу через 5-10 секунд.');
+                alert('УСПЕХ! Роль ' + selectedRole + ' сохранена.');
                 btn.innerText = 'ЗАРЕГИСТРИРОВАТЬСЯ';
                 btn.disabled = false;
-            } catch (error) {
-                alert('Ошибка: ' + error);
-                btn.innerText = 'ОШИБКА';
+            } catch (e) {
+                alert('Ошибка!');
                 btn.disabled = false;
             }
         }
