@@ -3,140 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VELKO</title>
+    <title>Система Логистики</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; margin: 0; }
-        .container { max-width: 400px; margin: 0 auto; }
-        h1 { color: #FACC15; font-size: 40px; margin-top: 10px; }
-        .hidden { display: none !important; }
-        .card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 15px; text-align: left; }
-        input, select, textarea { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        .main-btn { background: #FACC15; color: #000; }
-        .sec-btn { background: #222; color: #fff; border: 1px solid #444; }
-        #preview-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .preview-box { background: #111; padding: 25px; border-radius: 20px; border: 2px solid #FACC15; width: 85%; max-width: 350px; text-align: left; }
+        :root { --primary: #007bff; --success: #28a745; --dark: #333; }
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 15px; background: #f4f7f6; color: var(--dark); }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h2 { margin-top: 0; color: var(--primary); }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
+        .btn-secondary { background: #6c757d; }
+        .hidden { display: none; }
+        .status-toggle { display: flex; align-items: center; justify-content: space-between; background: #eee; padding: 10px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>VELKO</h1>
-    <div id="loader">Загрузка...</div>
-
-    <!-- ВЫБОР РОЛИ -->
-    <div id="auth-screen" class="hidden">
-        <p>Добро пожаловать</p>
-        <button class="main-btn" onclick="showReg('courier')">Я КУРЬЕР</button>
-        <button class="main-btn" style="margin-top:15px" onclick="showReg('client')">Я ЗАКАЗЧИК</button>
+<div id="app">
+    <!-- ЭКРАН ВЫБОРА РОЛИ -->
+    <div id="role-selection" class="card hidden">
+        <h2>Кто вы?</h2>
+        <button onclick="setRole('customer')">Я Заказчик</button>
+        <button onclick="setRole('courier')" class="btn-secondary">Я Курьер</button>
     </div>
 
-    <!-- РЕГИСТРАЦИЯ КУРЬЕРА -->
-    <div id="reg-courier" class="hidden">
-        <h3>Регистрация курьера</h3>
-        <input type="text" id="c-f" placeholder="Фамилия">
-        <input type="text" id="c-n" placeholder="Имя">
-        <input type="tel" id="c-p" placeholder="Телефон">
-        <input type="text" id="c-t" placeholder="Telegram @username">
-        <button class="main-btn" onclick="register('courier')">СОЗДАТЬ АККАУНТ</button>
-    </div>
-
-    <!-- РЕГИСТРАЦИЯ ЗАКАЗЧИКА -->
-    <div id="reg-client" class="hidden">
-        <h3>Регистрация заказчика</h3>
-        <input type="text" id="z-n" placeholder="Название компании">
-        <input type="text" id="z-a" placeholder="Адрес">
-        <input type="tel" id="z-p" placeholder="Телефон">
-        <button class="main-btn" onclick="register('client')">СТАТЬ ЗАКАЗЧИКОМ</button>
-    </div>
-
-    <!-- ЛИЧНЫЙ КАБИНЕТ ЗАКАЗЧИКА -->
-    <div id="lk-client" class="hidden">
-        <h2 id="hello-z">Привет!</h2>
+    <!-- ЭКРАН ЗАКАЗЧИКА -->
+    <div id="customer-screen" class="hidden">
         <div class="card">
-            <button class="main-btn" onclick="openOrderForm()">➕ СОЗДАТЬ ЗАКАЗ</button>
-            <button class="sec-btn" onclick="logout()" style="margin-top:20px">Выйти</button>
+            <h2>Создать заказ</h2>
+            <select id="orderType" onchange="togglePreorder()">
+                <option value="Онлайн (Срочно)">Онлайн (Срочно)</option>
+                <option value="Предзаказ">Предзаказ</option>
+            </select>
+            
+            <div id="preorder-details" class="hidden">
+                <input type="datetime-local" id="orderDateTime" placeholder="Дата и время">
+                <input type="number" id="courierCount" placeholder="Кол-во курьеров" min="1" value="1">
+                <input type="text" id="workHours" placeholder="На сколько часов (например, 2 часа)">
+            </div>
+
+            <input type="text" id="orderAddress" placeholder="Адрес подачи">
+            <input type="number" id="orderPrice" placeholder="Сумма оплаты (наличными)">
+            <button onclick="sendOrder()">Отправить заказ</button>
+            <button class="btn-secondary" onclick="logout()">Выйти</button>
         </div>
     </div>
 
-    <!-- ФОРМА ЗАКАЗА -->
-    <div id="order-form-screen" class="hidden">
-        <h3>Новый заказ</h3>
-        <input type="text" id="o-from" placeholder="Откуда (Адрес)">
-        <input type="text" id="o-to" placeholder="Куда (Адрес)">
-        <textarea id="o-details" placeholder="Что везем?" rows="2"></textarea>
-        <button class="main-btn" onclick="submitOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-        <button class="sec-btn" onclick="location.reload()">Отмена</button>
+    <!-- ЭКРАН КУРЬЕРА -->
+    <div id="courier-screen" class="hidden">
+        <div class="card">
+            <div class="status-toggle">
+                <span>Статус: <b>На смене</b></span>
+                <input type="checkbox" id="workStatus" checked>
+            </div>
+            <h2>Меню курьера</h2>
+            <button onclick="alert('Заказов пока нет')">Биржа заказов (Онлайн)</button>
+            <button onclick="showSection('service')" style="background: #ffc107; color: black;">Записаться на сервис</button>
+            <button onclick="showSection('parts')" style="background: #17a2b8;">Купить запчасти</button>
+            <button class="btn-secondary" onclick="logout()">Выйти</button>
+        </div>
+
+        <div id="service-section" class="card hidden">
+            <h3>Запись на сервис</h3>
+            <input type="datetime-local" id="serviceDate">
+            <button onclick="bookService()">Подтвердить запись</button>
+            <button onclick="hideSections()" class="btn-secondary">Назад</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // ТВОЯ НОВАЯ ССЫЛКА
-    const url = 'https://google.com';
-    
-    let currentUser = JSON.parse(localStorage.getItem('velko_user'));
+    const SCRIPT_URL = "https://google.com";
 
+    // Инициализация при загрузке
     window.onload = function() {
-        if (currentUser) { showLK(currentUser.role, currentUser.name); } 
-        else { 
-            document.getElementById('loader').classList.add('hidden'); 
-            document.getElementById('auth-screen').classList.remove('hidden'); 
+        const role = localStorage.getItem('userRole');
+        if (!role) {
+            document.getElementById('role-selection').classList.remove('hidden');
+        } else {
+            showRoleScreen(role);
         }
     };
 
-    function showReg(role) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('reg-' + role).classList.remove('hidden');
-    }
-
-    async function register(role) {
-        let data = { action: 'register', type: role };
-        if (role === 'courier') {
-            data.lastName = document.getElementById('c-f').value;
-            data.firstName = document.getElementById('c-n').value;
-            data.phone = document.getElementById('c-p').value;
-            data.telegram = document.getElementById('c-t').value;
-            data.name = data.firstName;
-        } else {
-            data.companyName = document.getElementById('z-n').value;
-            data.address = document.getElementById('z-a').value;
-            data.phone = document.getElementById('z-p').value;
-            data.name = data.companyName;
-        }
-        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-        localStorage.setItem('velko_user', JSON.stringify({role: role, name: data.name}));
-        showLK(role, data.name);
-    }
-
-    function showLK(role, name) {
-        document.getElementById('loader').classList.add('hidden');
-        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
-        const lk = document.getElementById('lk-' + role);
-        if(lk) lk.classList.remove('hidden');
-        const hello = document.getElementById(role === 'courier' ? 'hello-c' : 'hello-z');
-        if(hello) hello.innerText = 'Привет, ' + name + '!';
-    }
-
-    function openOrderForm() {
-        document.getElementById('lk-client').classList.add('hidden');
-        document.getElementById('order-form-screen').classList.remove('hidden');
-    }
-
-    async function submitOrder() {
-        const data = {
-            action: 'createOrder',
-            clientName: currentUser.name,
-            from: document.getElementById('o-from').value,
-            to: document.getElementById('o-to').value,
-            details: document.getElementById('o-details').value,
-            orderType: 'Онлайн', time: 'Сейчас', count: '1', payType: 'Нал'
-        };
-        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-        alert('Заказ отправлен!');
+    function setRole(role) {
+        localStorage.setItem('userRole', role);
         location.reload();
     }
 
-    function logout() { localStorage.removeItem('velko_user'); location.reload(); }
+    function showRoleScreen(role) {
+        document.getElementById('role-selection').classList.add('hidden');
+        if (role === 'customer') document.getElementById('customer-screen').classList.remove('hidden');
+        if (role === 'courier') document.getElementById('courier-screen').classList.remove('hidden');
+    }
+
+    function togglePreorder() {
+        const type = document.getElementById('orderType').value;
+        const details = document.getElementById('preorder-details');
+        type === 'Предзаказ' ? details.classList.remove('hidden') : details.classList.add('hidden');
+    }
+
+    function sendOrder() {
+        const type = document.getElementById('orderType').value;
+        const detailsText = type === 'Предзаказ' 
+            ? `Дата: ${document.getElementById('orderDateTime').value}, Курьеров: ${document.getElementById('courierCount').value}, Время: ${document.getElementById('workHours').value}`
+            : "Срочно";
+
+        const data = {
+            action: "createOrder",
+            customerName: "Тестовый клиент", // В будущем подтянем из профиля
+            address: document.getElementById('orderAddress').value,
+            orderType: type,
+            details: detailsText,
+            payment: document.getElementById('orderPrice').value
+        };
+
+        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
+        .then(() => alert("Заказ успешно отправлен в таблицу!"));
+    }
+
+    function showSection(id) {
+        hideSections();
+        document.getElementById(id + '-section').classList.remove('hidden');
+    }
+
+    function hideSections() {
+        document.getElementById('service-section').classList.add('hidden');
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
 </script>
 
 </body>
