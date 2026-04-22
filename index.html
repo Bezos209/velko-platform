@@ -1,49 +1,81 @@
-    <script>
-        const SUPABASE_URL = 'https://supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
-        let selectedRole = '';
+    <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Velko Platform</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; }
+        .page { display: none; flex-direction: column; height: 100%; width: 100%; }
+        .page.active { display: flex; }
+        .header { text-align: center; margin-bottom: 50px; }
+        .logo { font-size: 48px; font-weight: 900; color: #FACC15; letter-spacing: -2px; }
+        .title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px; }
+        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; border: none; }
+        .client-card { background-color: #1c1c1e; color: white; border: 1px solid #2c2c2e; }
+        .courier-card { background-color: #FACC15; color: black; }
+        .icon { font-size: 40px; margin-right: 20px; }
+        .role-title { font-size: 20px; font-weight: 700; text-align: left; }
+        input { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 18px; border-radius: 16px; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; }
+        .main-btn { width: 100%; background: #FACC15; color: #000; padding: 20px; border-radius: 20px; border: none; font-size: 18px; font-weight: 700; }
+    </style>
+</head>
+<body>
 
-        function showReg(role) {
-            selectedRole = role;
+    <div id="rolePage" class="page active">
+        <div class="header"><div class="logo">VELKO</div></div>
+        <div class="title">Кто вы сегодня?</div>
+        <button class="role-card client-card" onclick="showReg('client')">
+            <div class="icon">📦</div><div class="role-title">Заказчик</div>
+        </button>
+        <button class="role-card courier-card" onclick="showReg('courier')">
+            <div class="icon">🚴</div><div class="role-title">Курьер</div>
+        </button>
+    </div>
+
+    <div id="regPage" class="page">
+        <div class="title">Регистрация</div>
+        <input type="text" id="userName" placeholder="Ваше имя">
+        <input type="tel" id="userPhone" placeholder="Номер телефона">
+        <button class="main-btn" id="saveBtn" onclick="saveUser()">Зарегистрироваться</button>
+    </div>
+
+    <script>
+        const URL = 'https://supabase.co';
+        const KEY = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
+        let role = '';
+
+        function showReg(r) {
+            role = r;
             document.getElementById('rolePage').classList.remove('active');
             document.getElementById('regPage').classList.add('active');
         }
 
         async function saveUser() {
-            const name = document.getElementById('userName').value;
-            const phone = document.getElementById('userPhone').value;
-            const btn = document.getElementById('saveBtn');
+            const n = document.getElementById('userName').value;
+            const p = document.getElementById('userPhone').value;
+            if (!n || !p) { alert('Заполни поля'); return; }
 
-            if (!name || !phone) { alert('Заполните поля'); return; }
-            
-            btn.innerText = 'Проверка связи...';
-            btn.disabled = true;
+            document.getElementById('saveBtn').innerText = 'Связь с базой...';
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+                const res = await fetch(URL, {
                     method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({ name: name, phone: phone, role: selectedRole })
+                    headers: { 'apikey': KEY, 'Authorization': `Bearer ${KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: n, phone: p, role: role })
                 });
 
-                if (response.ok) {
-                    alert('Ура! Ты в базе.');
-                    btn.innerText = 'Готово ✅';
+                if (res.ok) {
+                    alert('УРА! ТЫ В БАЗЕ!');
+                    document.getElementById('saveBtn').innerText = 'Готово ✅';
                 } else {
-                    const err = await response.json();
-                    alert('Ошибка базы: ' + JSON.stringify(err));
-                    btn.innerText = 'Ошибка';
-                    btn.disabled = false;
+                    alert('Ошибка базы. Проверь таблицу в Supabase.');
                 }
             } catch (e) {
                 alert('Ошибка сети: ' + e.message);
-                btn.innerText = 'Нет связи';
-                btn.disabled = false;
             }
         }
     </script>
+</body>
+</html>
