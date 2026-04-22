@@ -3,59 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velko Platform</title>
+    <title>Velko</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
-        .logo { font-size: 40px; font-weight: 900; color: #FACC15; margin-bottom: 30px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; font-size: 16px; }
-        button { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; margin-top: 10px; cursor: pointer; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; background: #111; color: #fff; border: 1px solid #333; }
+        button { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="logo">VELKO</div>
-    <input type="text" id="name" placeholder="Ваше имя">
-    <input type="tel" id="phone" placeholder="Ваш телефон">
-    <button id="btn" onclick="save()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    <h1>VELKO</h1>
+    <input type="text" id="n" placeholder="Имя">
+    <input type="tel" id="p" placeholder="Телефон">
+    <button onclick="save()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
 
     <script>
-        async function save() {
-            const n = document.getElementById('name').value;
-            const p = document.getElementById('phone').value;
-            const b = document.getElementById('btn');
-
-            if (!n || !p) return alert('Заполните поля!');
-            b.innerText = 'ОТПРАВКА...';
-            b.disabled = true;
-
+        function save() {
+            const n = document.getElementById('n').value;
+            const p = document.getElementById('p').value;
             const url = 'https://supabase.co';
             const key = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
 
-            try {
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': key,
-                        'Authorization': 'Bearer ' + key,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({ name: n, phone: p, role: 'courier' })
-                });
-
-                if (res.ok) {
-                    alert('ПОБЕДА! Николай в базе!');
-                    b.innerText = 'ГОТОВО ✅';
-                } else {
-                    const errText = await res.text();
-                    alert('Ошибка базы: ' + errText);
-                    b.innerText = 'ОШИБКА';
-                    b.disabled = false;
+            // Используем метод, который не вызывает ошибку CORS
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", url);
+            xhr.setRequestHeader("apikey", key);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 201 || xhr.status === 200 || xhr.status === 204) {
+                        alert("ГОТОВО! Николай в базе!");
+                    } else {
+                        alert("Ошибка: " + xhr.status);
+                    }
                 }
-            } catch (e) {
-                alert('Ошибка сети! Проверь интернет или блокировки.');
-                b.innerText = 'ПОВТОРИТЬ';
-                b.disabled = false;
-            }
+            };
+            xhr.send(JSON.stringify({ name: n, phone: p, role: 'courier' }));
         }
     </script>
 </body>
