@@ -8,7 +8,7 @@
         :root { --y: #FFD22F; --b: #121212; }
         body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .logo { font-size: 48px; font-weight: 900; color: var(--y); margin: 20px 0; letter-spacing: 2px; }
-        .card { width: 100%; max-width: 400px; background: var(--b); padding: 20px; border-radius: 20px; border: 1px solid #333; box-sizing: border-box; }
+        .card { width: 100%; max-width: 400px; background: var(--b); padding: 25px; border-radius: 20px; border: 1px solid #333; box-sizing: border-box; }
         input, select, button { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
         input, select { background: #1A1A1A; color: #fff; border: 1px solid #333; }
         button { background: var(--y); color: #000; font-weight: 700; cursor: pointer; }
@@ -18,60 +18,69 @@
 <body>
     <div class="logo">VELKO</div>
 
-    <!-- ВХОД -->
+    <!-- ЭКРАН ВХОДА -->
     <div id="auth-screen" class="card">
-        <select id="role">
+        <select id="role" onchange="toggleFields()">
             <option value="customer">Я Заказчик (Клиент)</option>
             <option value="courier">Я Курьер</option>
         </select>
         <input type="text" id="name" placeholder="Имя / Название">
+        <input type="text" id="lastName" class="hidden" placeholder="Фамилия">
         <input type="tel" id="phone" placeholder="79000000000">
-        <input type="text" id="addr" placeholder="Ваш адрес (для клиента)">
-        <button onclick="auth()">ВОЙТИ</button>
+        <input type="text" id="tg" class="hidden" placeholder="Телеграм @nick">
+        <input type="text" id="addr" placeholder="Ваш адрес доставки">
+        <button onclick="auth()">ВОЙТИ В VELKO</button>
     </div>
 
     <!-- КАБИНЕТ КЛИЕНТА -->
     <div id="cust-app" class="card hidden">
-        <h3 style="color:var(--y)">НОВЫЙ ЗАКАЗ</h3>
+        <h3 style="color:var(--y); text-align:center">НОВЫЙ ЗАКАЗ</h3>
         <select id="oType" onchange="document.getElementById('pre').classList.toggle('hidden', this.value!='Предзаказ')">
             <option value="Срочно">🚀 Срочно</option>
             <option value="Предзаказ">📅 Предзаказ</option>
         </select>
         <div id="pre" class="hidden">
-            <input type="text" id="oDetails" placeholder="Дата, время, кол-во человек">
+            <input type="text" id="oDetails" placeholder="Дата, время, кол-во курьеров">
         </div>
-        <input type="text" id="oAddr" placeholder="Адрес доставки">
-        <input type="number" id="oPrice" placeholder="Сумма оплаты">
+        <input type="text" id="oAddr" placeholder="Адрес подачи курьера">
+        <input type="number" id="oPrice" placeholder="Сумма оплаты (наличные)">
         <button onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-        <button style="background:none; color:#666" onclick="localStorage.clear(); location.reload()">Выйти</button>
+        <button style="background:none; color:#666; font-weight:400" onclick="logout()">Выйти</button>
     </div>
 
     <!-- КАБИНЕТ КУРЬЕРА -->
     <div id="cour-app" class="card hidden">
-        <h3 style="color:var(--y)">МЕНЮ КУРЬЕРА</h3>
-        <button onclick="alert('Этап 3: Список заказов скоро!')">🚀 БИРЖА ЗАКАЗОВ</button>
+        <h3 style="color:var(--y); text-align:center">МЕНЮ КУРЬЕРА</h3>
+        <button onclick="alert('Этап 3: Список заказов будет здесь!')">🚀 БИРЖА ЗАКАЗОВ</button>
         <button style="background:#222; color:#fff">🛠 СЕРВИС</button>
-        <button style="background:none; color:#666; margin-top:20px" onclick="localStorage.clear(); location.reload()">Выйти</button>
+        <button style="background:none; color:#666; margin-top:20px" onclick="logout()">Выйти</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://google.com";
 
+        function toggleFields() {
+            const isCour = document.getElementById('role').value === 'courier';
+            document.getElementById('lastName').className = isCour ? '' : 'hidden';
+            document.getElementById('tg').className = isCour ? '' : 'hidden';
+            document.getElementById('addr').className = isCour ? 'hidden' : '';
+        }
+
         function auth() {
             const role = document.getElementById('role').value;
             const phone = document.getElementById('phone').value.replace(/\D/g,'');
             const name = document.getElementById('name').value;
+            const lName = document.getElementById('lastName').value;
+            const tg = document.getElementById('tg').value;
             const addr = document.getElementById('addr').value;
 
-            const url = `${SCRIPT_URL}?action=auth&role=${role}&phone=${phone}&name=${encodeURIComponent(name)}&address=${encodeURIComponent(addr)}`;
-            
-            // Используем "хитрый" метод отправки, который не блокирует iPhone
-            const img = new Image();
-            img.src = url;
+            // Отправка данных методом GET (пробивает всё)
+            const url = `${SCRIPT_URL}?action=auth&role=${role}&phone=${phone}&name=${encodeURIComponent(name)}&lastName=${encodeURIComponent(lName)}&tg=${encodeURIComponent(tg)}&address=${encodeURIComponent(addr)}`;
+            new Image().src = url;
 
             localStorage.setItem('velko_role', role);
             localStorage.setItem('velko_phone', phone);
-            setTimeout(() => location.reload(), 1000);
+            setTimeout(() => location.reload(), 800);
         }
 
         function sendOrder() {
@@ -82,13 +91,13 @@
             const details = document.getElementById('oDetails').value || "Срочно";
 
             const url = `${SCRIPT_URL}?action=order&phone=${phone}&addr=${encodeURIComponent(addr)}&price=${price}&type=${type}&details=${encodeURIComponent(details)}`;
-            
-            const img = new Image();
-            img.src = url;
+            new Image().src = url;
 
-            alert("Заказ отправлен!");
+            alert("Заказ улетел в таблицу!");
             location.reload();
         }
+
+        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = function() {
             const role = localStorage.getItem('velko_role');
