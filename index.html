@@ -6,63 +6,104 @@
     <title>Velko Platform</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; overflow: hidden; }
         
-        .header { text-align: center; margin-bottom: 60px; margin-top: 40px; }
+        /* Анимация переключения */
+        .page { display: none; flex-direction: column; height: 100%; width: 100%; animation: fadeIn 0.3s ease; }
+        .page.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header { text-align: center; margin-bottom: 50px; }
         .logo { font-size: 48px; font-weight: 900; color: #FACC15; letter-spacing: -2px; }
         .sub-logo { font-size: 10px; color: #666; letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
 
-        .title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px; color: #eee; }
+        .title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px; }
 
-        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; border: none; transition: transform 0.1s; text-decoration: none; }
+        /* Карточки ролей */
+        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; border: none; transition: 0.1s; }
         .role-card:active { transform: scale(0.97); }
-
         .client-card { background-color: #1c1c1e; border: 1px solid #2c2c2e; color: white; }
         .courier-card { background-color: #FACC15; color: black; }
-
         .icon { font-size: 40px; margin-right: 20px; }
         .text-group { text-align: left; flex-grow: 1; }
         .role-title { font-size: 20px; font-weight: 700; }
-        .role-desc { font-size: 14px; opacity: 0.6; margin-top: 4px; }
-        .arrow { font-size: 20px; opacity: 0.3; }
+        .role-desc { font-size: 14px; opacity: 0.6; }
 
-        .footer { margin-top: auto; text-align: center; color: #444; font-size: 10px; letter-spacing: 1px; }
+        /* Форма регистрации */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #666; font-size: 12px; text-transform: uppercase; font-weight: 700; }
+        input { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 18px; border-radius: 16px; color: #fff; font-size: 16px; outline: none; }
+        input:focus { border-color: #FACC15; }
+        .main-btn { width: 100%; background: #FACC15; color: #000; padding: 20px; border-radius: 20px; border: none; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        .back-btn { color: #666; background: none; border: none; margin-top: 20px; font-size: 14px; cursor: pointer; }
+
+        .footer { margin-top: auto; text-align: center; color: #444; font-size: 10px; padding-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">VELKO</div>
-        <div class="sub-logo">Logistic System</div>
+    <!-- ЭКРАН 1: ВЫБОР РОЛИ -->
+    <div id="rolePage" class="page active">
+        <div class="header">
+            <div class="logo">VELKO</div>
+            <div class="sub-logo">Logistic System</div>
+        </div>
+        <div class="title">Кто вы сегодня?</div>
+        <button class="role-card client-card" onclick="showReg('client')">
+            <div class="icon">📦</div>
+            <div class="text-group">
+                <div class="role-title">Заказчик</div>
+                <div class="role-desc">Мне нужна доставка</div>
+            </div>
+        </button>
+        <button class="role-card courier-card" onclick="showReg('courier')">
+            <div class="icon">🚴</div>
+            <div class="text-group">
+                <div class="role-title">Курьер</div>
+                <div class="role-desc">Хочу заработать</div>
+            </div>
+        </button>
     </div>
 
-    <div class="title">Кто вы сегодня?</div>
-
-    <button class="role-card client-card" onclick="selectRole('client')">
-        <div class="icon">📦</div>
-        <div class="text-group">
-            <div class="role-title">Заказчик</div>
-            <div class="role-desc">Мне нужна доставка</div>
+    <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
+    <div id="regPage" class="page">
+        <div class="title" id="regTitle">Регистрация</div>
+        <div class="input-group">
+            <label>Ваше имя</label>
+            <input type="text" id="userName" placeholder="Иван Иванов">
         </div>
-        <div class="arrow">→</div>
-    </button>
-
-    <button class="role-card courier-card" onclick="selectRole('courier')">
-        <div class="icon">🚴</div>
-        <div class="text-group">
-            <div class="role-title">Курьер</div>
-            <div class="role-desc">Хочу заработать</div>
+        <div class="input-group">
+            <label>Номер телефона</label>
+            <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00">
         </div>
-        <div class="arrow">→</div>
-    </button>
+        <button class="main-btn" onclick="saveUser()">Зарегистрироваться</button>
+        <button class="back-btn" onclick="location.reload()">← Назад к выбору роли</button>
+    </div>
 
-    <div class="footer">PLATFORM v 1.1.0 • 2026</div>
+    <div class="footer">PLATFORM v 1.2.0 • 2026</div>
 
     <script>
-        function selectRole(role) {
-            localStorage.setItem('userRole', role);
-            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
-            alert('Вы выбрали роль: ' + (role === 'client' ? 'Заказчик' : 'Курьер') + '. Переходим к регистрации...');
+        let selectedRole = '';
+
+        function showReg(role) {
+            selectedRole = role;
+            document.getElementById('rolePage').classList.remove('active');
+            document.getElementById('regPage').classList.add('active');
+            document.getElementById('regTitle').innerText = (role === 'client' ? 'Вход для заказчика' : 'Вход для курьера');
+            if (window.navigator.vibrate) window.navigator.vibrate(25);
+        }
+
+        function saveUser() {
+            const name = document.getElementById('userName').value;
+            const phone = document.getElementById('userPhone').value;
+            
+            if (!name || !phone) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            localStorage.setItem('velko_user', JSON.stringify({name, phone, role: selectedRole}));
+            alert('Данные сохранены локально! ' + name + ', на следующем этапе мы подключим базу данных.');
         }
     </script>
 </body>
