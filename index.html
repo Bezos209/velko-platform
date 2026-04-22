@@ -8,7 +8,7 @@
         body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; margin: 0; }
         .container { max-width: 400px; margin: 0 auto; }
         h1 { color: #FACC15; font-size: 40px; margin-top: 10px; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 15px; text-align: left; }
         input, select, textarea { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
@@ -16,7 +16,7 @@
         .sec-btn { background: #222; color: #fff; border: 1px solid #444; }
         
         /* Стили для Превью */
-        #preview-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; }
+        #preview-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .preview-box { background: #111; padding: 25px; border-radius: 20px; border: 2px solid #FACC15; width: 85%; max-width: 350px; text-align: left; }
         .preview-item { margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
         .preview-label { color: #888; font-size: 12px; text-transform: uppercase; }
@@ -28,9 +28,51 @@
 <div class="container">
     <h1>VELKO</h1>
 
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="loader">Загрузка...</div>
+
+    <!-- ВЫБОР РОЛИ -->
+    <div id="auth-screen" class="hidden">
+        <p>Добро пожаловать</p>
+        <button class="main-btn" onclick="showReg('courier')">Я КУРЬЕР</button>
+        <button class="main-btn" style="margin-top:15px" onclick="showReg('client')">Я ЗАКАЗЧИК</button>
+    </div>
+
+    <!-- РЕГИСТРАЦИЯ КУРЬЕРА -->
+    <div id="reg-courier" class="hidden">
+        <h3>Регистрация курьера</h3>
+        <input type="text" id="c-f" placeholder="Фамилия">
+        <input type="text" id="c-n" placeholder="Имя">
+        <input type="tel" id="c-p" placeholder="Телефон">
+        <input type="text" id="c-t" placeholder="Telegram @username">
+        <button class="main-btn" onclick="register('courier')">СОЗДАТЬ АККАУНТ</button>
+        <button class="sec-btn" onclick="location.reload()">Назад</button>
+    </div>
+
+    <!-- РЕГИСТРАЦИЯ ЗАКАЗЧИКА -->
+    <div id="reg-client" class="hidden">
+        <h3>Регистрация заказчика</h3>
+        <input type="text" id="z-n" placeholder="Название компании">
+        <input type="text" id="z-a" placeholder="Адрес">
+        <input type="tel" id="z-p" placeholder="Телефон">
+        <button class="main-btn" onclick="register('client')">СТАТЬ ЗАКАЗЧИКОМ</button>
+        <button class="sec-btn" onclick="location.reload()">Назад</button>
+    </div>
+
+    <!-- ЛИЧНЫЙ КАБИНЕТ КУРЬЕРА -->
+    <div id="lk-courier" class="hidden">
+        <h2 id="hello-c">Привет!</h2>
+        <div class="card">
+            <button class="main-btn">🚀 ВЫЙТИ НА РАБОТУ</button>
+            <button class="sec-btn" style="margin-top:10px">🛠 СЕРВИС / ЗАПЧАСТИ</button>
+            <button class="sec-btn" style="margin-top:10px">🚲 АРЕНДА ЭЛЕКТРОВЕЛО</button>
+        </div>
+        <button class="sec-btn" onclick="logout()" style="margin-top:30px">Выйти из профиля</button>
+    </div>
+
     <!-- ЛИЧНЫЙ КАБИНЕТ ЗАКАЗЧИКА -->
     <div id="lk-client" class="hidden">
-        <h2 id="hello-z">Заказчик</h2>
+        <h2 id="hello-z">Привет!</h2>
         <div class="card">
             <button class="main-btn" onclick="openOrderForm()">➕ СОЗДАТЬ ЗАКАЗ</button>
             <button class="sec-btn" style="margin-top:10px">📊 МОИ ЗАКАЗЫ</button>
@@ -38,55 +80,37 @@
         <button class="sec-btn" onclick="logout()" style="margin-top:30px">Выйти из профиля</button>
     </div>
 
-    <!-- ФОРМА СОЗДАНИЯ ЗАКАЗА -->
+    <!-- ФОРМА ЗАКАЗА -->
     <div id="order-form-screen" class="hidden">
         <h3>Новый заказ</h3>
         <select id="o-type" onchange="toggleTimeField()">
             <option value="Онлайн">🚀 Онлайн (Срочно)</option>
             <option value="Предзаказ">📅 Предзаказ (На время)</option>
         </select>
-        
         <input type="text" id="o-from" placeholder="Откуда (Адрес)">
         <input type="text" id="o-to" placeholder="Куда (Адрес)">
-        <textarea id="o-details" placeholder="Что везем? (Детали)" rows="2"></textarea>
-        
+        <textarea id="o-details" placeholder="Что везем?" rows="2"></textarea>
         <div id="time-field" class="hidden">
-            <p style="margin: 5px 0; font-size: 14px; color: #FACC15;">Укажите дату и время:</p>
             <input type="datetime-local" id="o-time">
         </div>
-
-        <input type="number" id="o-count" placeholder="Сколько курьеров нужно?" value="1">
-        
+        <input type="number" id="o-count" placeholder="Сколько курьеров?" value="1">
         <select id="o-pay">
             <option value="За заказ">💰 Оплата за заказ</option>
             <option value="За час">⏱ Оплата за час</option>
         </select>
-
         <button class="main-btn" onclick="showPreview()">ДАЛЕЕ</button>
         <button class="sec-btn" onclick="closeOrderForm()">Отмена</button>
     </div>
 
-    <!-- ОКНО ПРЕВЬЮ (ПОДТВЕРЖДЕНИЕ) -->
+    <!-- ПРЕВЬЮ (СКРЫТО ПО УМОЛЧАНИЮ) -->
     <div id="preview-overlay" class="hidden">
         <div class="preview-box">
             <h3 style="margin-top:0; color: #FACC15;">Проверьте заказ</h3>
             <div id="preview-content"></div>
-            <button class="main-btn" onclick="submitOrder()">ПОДТВЕРДИТЬ И ОТПРАВИТЬ</button>
+            <button class="main-btn" onclick="submitOrder()">ПОДТВЕРДИТЬ</button>
             <button class="sec-btn" onclick="hidePreview()">ИСПРАВИТЬ</button>
         </div>
     </div>
-    
-    <!-- Остальные экраны (курьер, лоадер и т.д.) -->
-    <div id="loader">Загрузка...</div>
-    <div id="auth-screen" class="hidden">
-        <p>Добро пожаловать</p>
-        <button class="main-btn" onclick="showReg('courier')">Я КУРЬЕР</button>
-        <button class="main-btn" style="margin-top:15px" onclick="showReg('client')">Я ЗАКАЗЧИК</button>
-    </div>
-    <div id="reg-courier" class="hidden">...</div> <!-- Код регистрации курьера здесь будет -->
-    <div id="reg-client" class="hidden">...</div> <!-- Код регистрации заказчика здесь будет -->
-    <div id="lk-courier" class="hidden">...</div> <!-- Код ЛК курьера здесь будет -->
-
 </div>
 
 <script>
@@ -95,8 +119,42 @@
 
     window.onload = function() {
         if (currentUser) { showLK(currentUser.role, currentUser.name); } 
-        else { document.getElementById('loader').classList.add('hidden'); document.getElementById('auth-screen').classList.remove('hidden'); }
+        else { 
+            document.getElementById('loader').classList.add('hidden'); 
+            document.getElementById('auth-screen').classList.remove('hidden'); 
+        }
     };
+
+    function showReg(role) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('reg-' + role).classList.remove('hidden');
+    }
+
+    async function register(role) {
+        let data = { action: 'register', type: role };
+        if (role === 'courier') {
+            data.lastName = document.getElementById('c-f').value;
+            data.firstName = document.getElementById('c-n').value;
+            data.phone = document.getElementById('c-p').value;
+            data.telegram = document.getElementById('c-t').value;
+            data.name = data.firstName;
+        } else {
+            data.companyName = document.getElementById('z-n').value;
+            data.address = document.getElementById('z-a').value;
+            data.phone = document.getElementById('z-p').value;
+            data.name = data.companyName;
+        }
+        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+        localStorage.setItem('velko_user', JSON.stringify({role: role, name: data.name}));
+        showLK(role, data.name);
+    }
+
+    function showLK(role, name) {
+        document.getElementById('loader').classList.add('hidden');
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById('lk-' + role).classList.remove('hidden');
+        document.getElementById(role === 'courier' ? 'hello-c' : 'hello-z').innerText = 'Привет, ' + name + '!';
+    }
 
     function openOrderForm() {
         document.getElementById('lk-client').classList.add('hidden');
@@ -110,20 +168,16 @@
 
     function toggleTimeField() {
         const type = document.getElementById('o-type').value;
-        document.getElementById('time-field').className = (type === 'Предзаказ' ? '' : 'hidden');
+        document.getElementById('time-field').style.display = (type === 'Предзаказ' ? 'block' : 'none');
     }
 
     function showPreview() {
         const data = getOrderData();
-        if(!data.from || !data.to) { alert('Заполни адреса!'); return; }
-        
         let html = `
             <div class="preview-item"><div class="preview-label">Тип</div><div class="preview-value">${data.orderType}</div></div>
             <div class="preview-item"><div class="preview-label">Маршрут</div><div class="preview-value">${data.from} ➔ ${data.to}</div></div>
-            <div class="preview-item"><div class="preview-label">Что везем</div><div class="preview-value">${data.details || '-'}</div></div>
-            ${data.orderType === 'Предзаказ' ? `<div class="preview-item"><div class="preview-label">Время</div><div class="preview-value">${data.time}</div></div>` : ''}
-            <div class="preview-item"><div class="preview-label">Курьеров</div><div class="preview-value">${data.count} чел.</div></div>
-            <div class="preview-item"><div class="preview-label">Оплата</div><div class="preview-value">${data.payType}</div></div>
+            <div class="preview-item"><div class="preview-label">Время</div><div class="preview-value">${data.time}</div></div>
+            <div class="preview-item"><div class="preview-label">Курьеров</div><div class="preview-value">${data.count}</div></div>
         `;
         document.getElementById('preview-content').innerHTML = html;
         document.getElementById('preview-overlay').classList.remove('hidden');
@@ -134,7 +188,7 @@
     function getOrderData() {
         return {
             action: 'createOrder',
-            clientName: currentUser.name,
+            clientName: currentUser ? currentUser.name : 'Unknown',
             orderType: document.getElementById('o-type').value,
             from: document.getElementById('o-from').value,
             to: document.getElementById('o-to').value,
@@ -147,25 +201,12 @@
 
     async function submitOrder() {
         const btn = event.target;
-        btn.innerText = 'ОТПРАВЛЯЕМ...';
-        btn.disabled = true;
-
-        try {
-            await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(getOrderData()) });
-            alert('ЗАКАЗ УЛЕТЕЛ В СИСТЕМУ!');
-            location.reload();
-        } catch (e) { alert('Ошибка сети!'); btn.disabled = false; }
+        btn.innerText = 'ОТПРАВКА...';
+        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(getOrderData()) });
+        alert('Заказ создан!');
+        location.reload();
     }
 
-    // Вспомогательные функции (регистрация, выход) - оставить как в прошлом коде
-    function showLK(role, name) {
-        document.getElementById('loader').classList.add('hidden');
-        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
-        const lk = document.getElementById('lk-' + role);
-        if(lk) lk.classList.remove('hidden');
-        const hello = document.getElementById(role === 'courier' ? 'hello-c' : 'hello-z');
-        if(hello) hello.innerText = 'Привет, ' + name + '!';
-    }
     function logout() { localStorage.removeItem('velko_user'); location.reload(); }
 </script>
 
