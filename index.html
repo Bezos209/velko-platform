@@ -12,82 +12,103 @@
         .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
         .btn-main { background: var(--yellow); color: #000; }
         .btn-dark { background: var(--dark-btn); color: var(--text); border: 1px solid #333; }
-        .btn-link { background: transparent; color: var(--gray); font-size: 14px; margin-top: 15px; }
+        .btn-outline { background: transparent; color: var(--gray); font-size: 14px; margin-top: 15px; font-weight: 400; border: none; }
         input, select { width: 100%; padding: 15px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
         .hidden { display: none; }
-        .loader { color: var(--yellow); font-size: 14px; margin: 10px 0; }
+        #login-loader { color: var(--yellow); font-size: 14px; margin: 10px 0; text-align: center; }
+        .section-title { color: var(--yellow); margin-bottom: 15px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="logo">VELKO</div>
 
-    <!-- ЭКРАН 1: ВХОД ПО ТЕЛЕФОНУ -->
+    <!-- ЭКРАН 1: ВХОД -->
     <div id="login-screen" class="container">
         <h2 style="text-align:center">Вход в систему</h2>
-        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00">
-        <div id="login-loader" class="hidden">Проверка номера...</div>
+        <input type="tel" id="userPhone" placeholder="89000000000">
+        <div id="login-loader" class="hidden">Проверка номера в базе...</div>
         <button class="btn btn-main" onclick="checkUser()">ПРОДОЛЖИТЬ</button>
     </div>
 
     <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
     <div id="register-screen" class="container hidden">
         <h2 style="text-align:center">Регистрация</h2>
-        <select id="regRole">
-            <option value="customer">Я Заказчик (Кафе/Магазин)</option>
+        <select id="regRole" onchange="toggleRegFields()">
+            <option value="customer">Я Заказчик</option>
             <option value="courier">Я Курьер</option>
         </select>
-        <input type="text" id="regName" placeholder="Имя / Название">
-        <input type="text" id="regLastName" placeholder="Фамилия (для курьера)">
-        <input type="text" id="regAddress" placeholder="Адрес (для заказчика)">
+        <input type="text" id="regName" placeholder="Имя или Название кафе">
+        <input type="text" id="regLastName" class="hidden" placeholder="Фамилия">
+        <input type="text" id="regAddress" placeholder="Адрес">
         <button class="btn btn-main" onclick="handleRegister()">СОЗДАТЬ АККАУНТ</button>
     </div>
 
-    <!-- КАБИНЕТЫ БУДУТ ТУТ (Оставляем твой дизайн) -->
+    <!-- ЭКРАН 3: ПРИЛОЖЕНИЕ (ГЛАВНАЯ) -->
     <div id="main-app" class="container hidden">
-        <h3 id="hello-user" style="text-align:center">Привет!</h3>
+        <h3 id="hello-user" style="text-align:center; margin-bottom: 25px;">Привет!</h3>
+        
+        <!-- Меню Курьера -->
         <div id="courier-menu" class="hidden">
             <button class="btn btn-main">🚀 ВЫЙТИ НА РАБОТУ</button>
             <button class="btn btn-dark">🛠 СЕРВИС / ЗАПЧАСТИ</button>
             <button class="btn btn-dark">🚲 АРЕНДА ЭЛЕКТРОВЕЛО</button>
         </div>
+
+        <!-- Меню Заказчика -->
         <div id="customer-menu" class="hidden">
-            <button class="btn btn-main">📦 СОЗДАТЬ ЗАКАЗ</button>
+            <button class="btn btn-main" onclick="alert('Скоро: форма заказа')">📦 СОЗДАТЬ ЗАКАЗ</button>
+            <button class="btn btn-dark">📜 МОИ ЗАКАЗЫ</button>
         </div>
-        <button class="btn btn-link" onclick="logout()">Выйти из профиля</button>
+
+        <button class="btn btn-outline" onclick="logout()">Выйти из профиля</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://google.com";
 
         window.onload = function() {
-            const savedUser = localStorage.getItem('userPhone');
-            if (savedUser) showApp(localStorage.getItem('userRole'), savedUser);
+            const savedPhone = localStorage.getItem('userPhone');
+            const savedRole = localStorage.getItem('userRole');
+            if (savedPhone && savedRole) {
+                showApp(savedRole);
+            }
         };
 
         function checkUser() {
-            const phone = document.getElementById('userPhone').value.trim();
-            if (!phone) return alert("Введите номер");
-            
+            const phoneInput = document.getElementById('userPhone').value.trim();
+            const phone = phoneInput.replace(/\D/g, ''); 
+            if (phone.length < 10) return alert("Введите корректный номер");
+
             document.getElementById('login-loader').classList.remove('hidden');
 
-            // Мы шлем запрос в таблицу, чтобы найти пользователя
             fetch(`${SCRIPT_URL}?action=checkUser&phone=${phone}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('login-loader').classList.add('hidden');
                 if (data.status === "found") {
-                    saveAndShow(data.role, phone);
+                    localStorage.setItem('userPhone', phone);
+                    localStorage.setItem('userRole', data.role);
+                    showApp(data.role);
                 } else {
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('register-screen').classList.remove('hidden');
                 }
+            })
+            .catch(err => {
+                document.getElementById('login-loader').classList.add('hidden');
+                alert("Ошибка связи с таблицей");
             });
         }
 
-        function handleRegister() {
+        function toggleRegFields() {
             const role = document.getElementById('regRole').value;
-            const phone = document.getElementById('userPhone').value;
+            document.getElementById('regLastName').className = (role === 'courier' ? '' : 'hidden');
+        }
+
+        function handleRegister() {
+            const phone = document.getElementById('userPhone').value.replace(/\D/g, '');
+            const role = document.getElementById('regRole').value;
             const data = {
                 action: "register",
                 role: role,
@@ -98,19 +119,18 @@
             };
 
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-            .then(() => saveAndShow(role, phone));
+            .then(() => {
+                localStorage.setItem('userPhone', phone);
+                localStorage.setItem('userRole', role);
+                location.reload();
+            });
         }
 
-        function saveAndShow(role, phone) {
-            localStorage.setItem('userRole', role);
-            localStorage.setItem('userPhone', phone);
-            location.reload();
-        }
-
-        function showApp(role, phone) {
+        function showApp(role) {
             document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('register-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('hello-user').innerText = `Привет, ${role === 'courier' ? 'Курьер' : 'Заказчик'}!`;
+            document.getElementById('hello-user').innerText = "Привет, " + (role === 'courier' ? "Курьер!" : "Заказчик!");
             document.getElementById(role + '-menu').classList.remove('hidden');
         }
 
