@@ -1,14 +1,39 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="background:#000;color:#fff;font-family:sans-serif;padding:50px;text-align:center">
-    <h1>VELKO</h1>
-    <!-- Форма, которую браузер обязан отправить -->
-    <form action="https://supabase.co" method="POST">
-        <input type="hidden" name="apikey" value="sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8">
-        <input name="name" placeholder="Имя" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;font-size:18px">
-        <input name="phone" placeholder="Телефон" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;font-size:18px">
-        <button type="submit" style="width:100%;padding:20px;background:#FACC15;border-radius:15px;font-weight:bold;font-size:18px">ОТПРАВИТЬ</button>
-    </form>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velko</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
+        .logo { font-size: 48px; font-weight: 900; color: #FACC15; margin-bottom: 40px; }
+        input { width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 16px; border: none; background: #1c1c1e; color: #fff; font-size: 18px; outline: none; }
+        button { width: 100%; padding: 20px; background: #FACC15; border: none; border-radius: 20px; font-size: 20px; font-weight: 800; color: #000; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="logo">VELKO</div>
+    <input type="text" id="n" placeholder="Ваше имя">
+    <input type="tel" id="p" placeholder="Телефон">
+    <button onclick="s()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+
+    <script>
+        async function s() {
+            const name = document.getElementById('n').value;
+            const phone = document.getElementById('p').value;
+            if(!name || !phone) return alert('Заполни поля');
+
+            const url = 'https://google.com';
+            
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, phone: phone })
+            });
+
+            alert('ОТПРАВЛЕНО! Николай, проверяй Гугл Таблицу!');
+        }
+    </script>
 </body>
 </html>
