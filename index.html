@@ -1,20 +1,56 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <body style="background:#000;color:#fff;font-family:sans-serif;padding:50px;text-align:center">
     <h1>VELKO</h1>
-    <input id="n" placeholder="Имя" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none">
-    <input id="p" placeholder="Телефон" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none">
-    <button onclick="s()" style="width:100%;padding:20px;background:#FACC15;border-radius:15px;font-weight:bold;border:none">РЕГИСТРАЦИЯ</button>
+    <input id="n" placeholder="Имя" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none;font-size:18px">
+    <input id="p" placeholder="Телефон" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none;font-size:18px">
+    
+    <button id="btn" onclick="s()" style="width:100%;padding:20px;background:#FACC15;border-radius:15px;font-weight:bold;border:none;font-size:18px;cursor:pointer;color:#000">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+
     <script>
         async function s() {
+            const name = document.getElementById('n').value;
+            const phone = document.getElementById('p').value;
+            const btn = document.getElementById('btn');
+
+            if(!name || !phone) return alert('Заполни поля');
+            
+            btn.innerText = 'ОТПРАВКА...';
+            btn.style.opacity = '0.5';
+
             const url = 'https://supabase.co';
             const key = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
-            await fetch(url, {
-                method: 'POST',
-                headers: {'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
-                body: JSON.stringify({ name: document.getElementById('n').value, phone: document.getElementById('p').value })
-            });
-            alert('ГОТОВО! ПРОВЕРЯЙ users_new!');
+            
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': key,
+                        'Authorization': 'Bearer ' + key,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ name: name, phone: phone })
+                });
+
+                if(res.ok) {
+                    alert('УСПЕХ! Николай в таблице users_new!');
+                    btn.innerText = 'ГОТОВО ✅';
+                } else {
+                    const err = await res.text();
+                    alert('Ошибка базы: ' + err);
+                    btn.innerText = 'ОШИБКА';
+                }
+            } catch (e) {
+                alert('Ошибка сети: ' + e.message);
+                btn.innerText = 'ПОВТОРИТЬ';
+            } finally {
+                btn.style.opacity = '1';
+            }
         }
     </script>
 </body>
