@@ -2,40 +2,60 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velko Go</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velko Platform</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; justify-content: center; }
-        .logo { font-size: 48px; font-weight: 900; color: #FACC15; text-align: center; margin-bottom: 40px; }
-        input { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 20px; border-radius: 16px; color: #fff; font-size: 18px; margin-bottom: 15px; outline: none; }
-        .btn { width: 100%; background: #FACC15; color: #000; padding: 20px; border-radius: 20px; border: none; font-size: 20px; font-weight: 800; cursor: pointer; }
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
+        .logo { font-size: 40px; font-weight: 900; color: #FACC15; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; font-size: 16px; }
+        button { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="logo">VELKO</div>
-    <input type="text" id="n" placeholder="Имя">
-    <input type="tel" id="p" placeholder="Телефон">
-    <button class="btn" onclick="send()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    <input type="text" id="name" placeholder="Ваше имя">
+    <input type="tel" id="phone" placeholder="Ваш телефон">
+    <button id="btn" onclick="save()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
 
     <script>
-        async function send() {
-            const name = document.getElementById('n').value;
-            const phone = document.getElementById('p').value;
-            if(!name || !phone) return alert('Заполни поля');
+        async function save() {
+            const n = document.getElementById('name').value;
+            const p = document.getElementById('phone').value;
+            const b = document.getElementById('btn');
+
+            if (!n || !p) return alert('Заполните поля!');
+            b.innerText = 'ОТПРАВКА...';
+            b.disabled = true;
 
             const url = 'https://supabase.co';
             const key = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
 
-            // Этот метод пробивает любую блокировку браузера
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'apikey': key, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, phone: phone, role: 'courier' })
-            });
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': key,
+                        'Authorization': 'Bearer ' + key,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({ name: n, phone: p, role: 'courier' })
+                });
 
-            alert('ГОТОВО! Николай, проверяй базу через 5 секунд!');
+                if (res.ok) {
+                    alert('ПОБЕДА! Николай в базе!');
+                    b.innerText = 'ГОТОВО ✅';
+                } else {
+                    const errText = await res.text();
+                    alert('Ошибка базы: ' + errText);
+                    b.innerText = 'ОШИБКА';
+                    b.disabled = false;
+                }
+            } catch (e) {
+                alert('Ошибка сети! Проверь интернет или блокировки.');
+                b.innerText = 'ПОВТОРИТЬ';
+                b.disabled = false;
+            }
         }
     </script>
 </body>
