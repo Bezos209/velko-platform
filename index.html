@@ -5,179 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VELKO Platform</title>
     <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #121212;
-            --primary-yellow: #FFD22F;
-            --text-main: #FFFFFF;
-            --text-secondary: #A0A0A0;
-            --button-dark: #242424;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 42px;
-            font-weight: 900;
-            color: var(--primary-yellow);
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
-
-        .greeting {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 15px;
-            box-sizing: border-box;
-            border: 1px solid #333;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            margin: 10px 0;
-            border-radius: 12px;
-            border: none;
-            font-size: 16px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .btn:active { transform: scale(0.98); }
-
-        .btn-main { background-color: var(--primary-yellow); color: #000; }
-        .btn-dark { background-color: var(--button-dark); color: var(--text-main); border: 1px solid #333; }
-        .btn-outline { background: transparent; color: var(--text-secondary); margin-top: 20px; font-weight: 400; }
-
-        input, select {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #1A1A1A;
-            border: 1px solid #333;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-        }
-
+        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; --gray: #A0A0A0; --dark-btn: #242424; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .logo { font-size: 42px; font-weight: 900; color: var(--yellow); margin: 20px 0 5px; letter-spacing: 2px; }
+        .container { width: 100%; max-width: 400px; background: var(--card); border-radius: 20px; padding: 20px; box-sizing: border-box; border: 1px solid #333; margin-top: 20px; }
+        .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+        .btn-main { background: var(--yellow); color: #000; }
+        .btn-dark { background: var(--dark-btn); color: var(--text); border: 1px solid #333; }
+        .btn-link { background: transparent; color: var(--gray); font-size: 14px; margin-top: 15px; }
+        input, select { width: 100%; padding: 15px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
         .hidden { display: none; }
-        .section-title { color: var(--primary-yellow); margin-bottom: 15px; text-align: center; }
+        .loader { color: var(--yellow); font-size: 14px; margin: 10px 0; }
     </style>
 </head>
 <body>
 
     <div class="logo">VELKO</div>
-    <div id="user-greeting" class="greeting">Привет!</div>
 
-    <!-- ВЫБОР РОЛИ -->
-    <div id="role-selection" class="container">
-        <button class="btn btn-main" onclick="setRole('customer')">👤 Я ЗАКАЗЧИК</button>
-        <button class="btn btn-dark" onclick="setRole('courier')">🚲 Я КУРЬЕР</button>
+    <!-- ЭКРАН 1: ВХОД ПО ТЕЛЕФОНУ -->
+    <div id="login-screen" class="container">
+        <h2 style="text-align:center">Вход в систему</h2>
+        <input type="tel" id="userPhone" placeholder="+7 (999) 000-00-00">
+        <div id="login-loader" class="hidden">Проверка номера...</div>
+        <button class="btn btn-main" onclick="checkUser()">ПРОДОЛЖИТЬ</button>
     </div>
 
-    <!-- КАБИНЕТ ЗАКАЗЧИКА -->
-    <div id="customer-screen" class="container hidden">
-        <h3 class="section-title">Создать заказ</h3>
-        <select id="orderType" onchange="togglePreorder()">
-            <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
-            <option value="Предзаказ">📅 Предзаказ</option>
+    <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
+    <div id="register-screen" class="container hidden">
+        <h2 style="text-align:center">Регистрация</h2>
+        <select id="regRole">
+            <option value="customer">Я Заказчик (Кафе/Магазин)</option>
+            <option value="courier">Я Курьер</option>
         </select>
-        
-        <div id="preorder-details" class="hidden">
-            <input type="datetime-local" id="orderDateTime">
-            <input type="number" id="courierCount" placeholder="Сколько курьеров?" min="1">
-            <input type="text" id="workHours" placeholder="На сколько часов?">
-        </div>
-
-        <input type="text" id="orderAddress" placeholder="Адрес подачи">
-        <input type="number" id="orderPrice" placeholder="Сумма (наличными)">
-        
-        <button class="btn btn-main" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-        <button class="btn btn-outline" onclick="logout()">Выйти из профиля</button>
+        <input type="text" id="regName" placeholder="Имя / Название">
+        <input type="text" id="regLastName" placeholder="Фамилия (для курьера)">
+        <input type="text" id="regAddress" placeholder="Адрес (для заказчика)">
+        <button class="btn btn-main" onclick="handleRegister()">СОЗДАТЬ АККАУНТ</button>
     </div>
 
-    <!-- КАБИНЕТ КУРЬЕРА -->
-    <div id="courier-screen" class="container hidden">
-        <button class="btn btn-main" onclick="alert('Ищем заказы...')">🚀 ВЫЙТИ НА РАБОТУ</button>
-        <button class="btn btn-dark" onclick="showSub('service')">🛠 СЕРВИС / ЗАПЧАСТИ</button>
-        <button class="btn btn-dark" onclick="showSub('rent')">🚲 АРЕНДА ЭЛЕКТРОВЕЛО</button>
-        
-        <div id="sub-service" class="hidden">
-            <hr style="border: 0.5px solid #333; margin: 20px 0;">
-            <h4 style="text-align:center">Запись на сервис</h4>
-            <input type="datetime-local" id="servDate">
-            <button class="btn btn-main" onclick="alert('Записано!')">ПОДТВЕРДИТЬ</button>
+    <!-- КАБИНЕТЫ БУДУТ ТУТ (Оставляем твой дизайн) -->
+    <div id="main-app" class="container hidden">
+        <h3 id="hello-user" style="text-align:center">Привет!</h3>
+        <div id="courier-menu" class="hidden">
+            <button class="btn btn-main">🚀 ВЫЙТИ НА РАБОТУ</button>
+            <button class="btn btn-dark">🛠 СЕРВИС / ЗАПЧАСТИ</button>
+            <button class="btn btn-dark">🚲 АРЕНДА ЭЛЕКТРОВЕЛО</button>
         </div>
-
-        <button class="btn btn-outline" onclick="logout()">Выйти из профиля</button>
+        <div id="customer-menu" class="hidden">
+            <button class="btn btn-main">📦 СОЗДАТЬ ЗАКАЗ</button>
+        </div>
+        <button class="btn btn-link" onclick="logout()">Выйти из профиля</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://google.com";
 
         window.onload = function() {
-            const role = localStorage.getItem('userRole');
-            if (role) {
-                document.getElementById('role-selection').classList.add('hidden');
-                document.getElementById(role + '-screen').classList.remove('hidden');
-                document.getElementById('user-greeting').innerText = "Привет, " + (role === 'courier' ? 'Курьер!' : 'Заказчик!');
-            }
+            const savedUser = localStorage.getItem('userPhone');
+            if (savedUser) showApp(localStorage.getItem('userRole'), savedUser);
         };
 
-        function setRole(role) {
-            localStorage.setItem('userRole', role);
-            location.reload();
+        function checkUser() {
+            const phone = document.getElementById('userPhone').value.trim();
+            if (!phone) return alert("Введите номер");
+            
+            document.getElementById('login-loader').classList.remove('hidden');
+
+            // Мы шлем запрос в таблицу, чтобы найти пользователя
+            fetch(`${SCRIPT_URL}?action=checkUser&phone=${phone}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('login-loader').classList.add('hidden');
+                if (data.status === "found") {
+                    saveAndShow(data.role, phone);
+                } else {
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('register-screen').classList.remove('hidden');
+                }
+            });
         }
 
-        function togglePreorder() {
-            const type = document.getElementById('orderType').value;
-            document.getElementById('preorder-details').className = (type === 'Предзаказ' ? '' : 'hidden');
-        }
-
-        function showSub(id) {
-            document.getElementById('sub-service').className = (id === 'service' ? '' : 'hidden');
-        }
-
-        function sendOrder() {
-            const type = document.getElementById('orderType').value;
+        function handleRegister() {
+            const role = document.getElementById('regRole').value;
+            const phone = document.getElementById('userPhone').value;
             const data = {
-                action: "createOrder",
-                customerName: "Николай",
-                address: document.getElementById('orderAddress').value,
-                orderType: type,
-                details: type === 'Предзаказ' ? document.getElementById('orderDateTime').value : "Срочно",
-                payment: document.getElementById('orderPrice').value
+                action: "register",
+                role: role,
+                phone: phone,
+                name: document.getElementById('regName').value,
+                lastName: document.getElementById('regLastName').value,
+                address: document.getElementById('regAddress').value
             };
+
             fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-            .then(() => alert("Заказ принят!"));
+            .then(() => saveAndShow(role, phone));
         }
 
-        function logout() {
-            localStorage.clear();
+        function saveAndShow(role, phone) {
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('userPhone', phone);
             location.reload();
         }
+
+        function showApp(role, phone) {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('hello-user').innerText = `Привет, ${role === 'courier' ? 'Курьер' : 'Заказчик'}!`;
+            document.getElementById(role + '-menu').classList.remove('hidden');
+        }
+
+        function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
 </html>
