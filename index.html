@@ -5,91 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VELKO Platform</title>
     <style>
-        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; }
+        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; --gray: #A0A0A0; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .logo { font-size: 42px; font-weight: 900; color: var(--yellow); margin: 20px 0 5px; letter-spacing: 2px; }
-        .container { width: 100%; max-width: 400px; background: var(--card); border-radius: 20px; padding: 20px; box-sizing: border-box; border: 1px solid #333; margin-top: 20px; }
-        .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+        .logo { font-size: 48px; font-weight: 900; color: var(--yellow); margin: 20px 0; letter-spacing: 2px; }
+        .container { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 25px; box-sizing: border-box; border: 1px solid #222; }
+        .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-main { background: var(--yellow); color: #000; }
-        .btn-dark { background: #242424; color: #fff; border: 1px solid #333; }
-        input, select { width: 100%; padding: 15px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 16px; box-sizing: border-box; }
+        .btn-dark { background: #222; color: #fff; border: 1px solid #333; }
+        input, select { width: 100%; padding: 16px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; box-sizing: border-box; }
         .hidden { display: none; }
+        .label { color: var(--gray); font-size: 14px; margin-left: 5px; }
     </style>
 </head>
 <body>
-    <div class="logo">VELKO</div>
-    <div id="login-screen" class="container">
-        <h2 style="text-align:center">Вход</h2>
-        <input type="tel" id="userPhone" placeholder="89000000000">
-        <button class="btn btn-main" id="loginBtn" onclick="checkUser()">ПРОДОЛЖИТЬ</button>
-    </div>
 
-    <div id="register-screen" class="container hidden">
-        <h2 style="text-align:center">Регистрация</h2>
-        <select id="regRole">
+    <div class="logo">VELKO</div>
+
+    <!-- ЭКРАН ВХОДА -->
+    <div id="auth-screen" class="container">
+        <h2 style="text-align:center; margin-bottom: 20px;">Вход</h2>
+        <select id="userRole" onchange="toggleRegFields()">
             <option value="customer">Я Заказчик</option>
             <option value="courier">Я Курьер</option>
         </select>
-        <input type="text" id="regName" placeholder="Имя / Название">
-        <input type="text" id="regAddress" placeholder="Ваш адрес">
-        <button class="btn btn-main" onclick="register()">СОЗДАТЬ АККАУНТ</button>
+        <input type="text" id="userName" placeholder="Ваше Имя / Название">
+        <input type="tel" id="userPhone" placeholder="Телефон">
+        <div id="extra-fields" class="hidden">
+            <input type="text" id="userLastName" placeholder="Фамилия">
+            <input type="text" id="userTg" placeholder="Telegram @nick">
+        </div>
+        <button class="btn btn-main" onclick="handleAuth()">ВОЙТИ В СИСТЕМУ</button>
     </div>
 
-    <div id="main-app" class="container hidden">
-        <h3 id="hello" style="text-align:center"></h3>
-        <div id="cust-menu" class="hidden">
-            <button class="btn btn-main">📦 СОЗДАТЬ ЗАКАЗ</button>
+    <!-- КАБИНЕТ ЗАКАЗЧИКА -->
+    <div id="customer-app" class="container hidden">
+        <h3 style="color: var(--yellow); text-align: center;">НОВЫЙ ЗАКАЗ</h3>
+        <select id="orderType" onchange="togglePreorder()">
+            <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
+            <option value="Предзаказ">📅 Предзаказ</option>
+        </select>
+        <div id="preorder-fields" class="hidden">
+            <input type="datetime-local" id="orderTime">
+            <input type="number" id="orderCount" placeholder="Сколько курьеров?" value="1">
+            <input type="text" id="orderDur" placeholder="На сколько часов?">
         </div>
-        <div id="cour-menu" class="hidden">
-            <button class="btn btn-main">🚀 В РАБОТЕ</button>
-        </div>
-        <button class="btn btn-dark" style="margin-top:20px" onclick="localStorage.clear(); location.reload()">Выйти</button>
+        <input type="text" id="orderAddr" placeholder="Адрес подачи">
+        <input type="number" id="orderPrice" placeholder="Сумма (наличными)">
+        <button class="btn btn-main" id="sendBtn" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+        <button class="btn btn-dark" onclick="logout()">Выйти</button>
+    </div>
+
+    <!-- КАБИНЕТ КУРЬЕРА -->
+    <div id="courier-app" class="container hidden">
+        <h3 style="color: var(--yellow); text-align: center;">МЕНЮ КУРЬЕРА</h3>
+        <button class="btn btn-main">🚀 В РАБОТЕ (БИРЖА)</button>
+        <button class="btn btn-dark" onclick="alert('Запись на сервис принята')">🛠 СЕРВИС / ЗАПЧАСТИ</button>
+        <button class="btn btn-dark" onclick="alert('Каталог аренды скоро')">🚲 АРЕНДА ВЕЛО</button>
+        <button class="btn btn-dark" style="margin-top:20px; border:none; color:var(--gray)" onclick="logout()">Выйти</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://google.com";
 
-        // Глобальная функция для приема ответа
-        window.onAuthResponse = function(data) {
-            document.getElementById('loginBtn').innerText = "ПРОДОЛЖИТЬ";
-            if (data.status === "found") {
-                localStorage.setItem('role', data.role);
-                localStorage.setItem('phone', document.getElementById('userPhone').value);
-                showApp(data.role);
-            } else {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('register-screen').classList.remove('hidden');
-            }
-        };
+        function toggleRegFields() {
+            const role = document.getElementById('userRole').value;
+            document.getElementById('extra-fields').className = (role === 'courier' ? '' : 'hidden');
+        }
 
-        function checkUser() {
-            const phone = document.getElementById('userPhone').value.replace(/\D/g, '');
-            if (phone.length < 10) return alert("Введите номер");
-            document.getElementById('loginBtn').innerText = "Проверка...";
+        function togglePreorder() {
+            const type = document.getElementById('orderType').value;
+            document.getElementById('preorder-fields').className = (type === 'Предзаказ' ? '' : 'hidden');
+        }
+
+        function handleAuth() {
+            const role = document.getElementById('userRole').value;
+            const phone = document.getElementById('userPhone').value;
+            const name = document.getElementById('userName').value;
+
+            if(!phone || !name) return alert("Заполните Имя и Телефон");
+
+            const data = {
+                action: "register",
+                role: role,
+                phone: phone,
+                name: name,
+                lastName: document.getElementById('userLastName').value,
+                telegram: document.getElementById('userTg').value
+            };
+
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
             
-            // Метод "невидимки" — iPhone его не блокирует
-            const script = document.createElement('script');
-            script.src = `${SCRIPT_URL}?action=checkUser&phone=${phone}&callback=onAuthResponse`;
-            document.body.appendChild(script);
+            localStorage.setItem('velkoRole', role);
+            localStorage.setItem('velkoName', name);
+            localStorage.setItem('velkoPhone', phone);
+            location.reload();
         }
 
-        function register() {
-            const role = document.getElementById('regRole').value;
-            const data = { action: "register", role: role, phone: document.getElementById('userPhone').value, name: document.getElementById('regName').value, address: document.getElementById('regAddress').value };
-            fetch(SCRIPT_URL, {method: "POST", mode: "no-cors", body: JSON.stringify(data)})
-            .then(() => { localStorage.setItem('role', role); location.reload(); });
+        function sendOrder() {
+            document.getElementById('sendBtn').innerText = "ОТПРАВЛЯЕМ...";
+            const type = document.getElementById('orderType').value;
+            const details = type === 'Предзаказ' 
+                ? `Дата: ${document.getElementById('orderTime').value}, Кол-во: ${document.getElementById('orderCount').value}, Часы: ${document.getElementById('orderDur').value}`
+                : "Срочно";
+
+            const data = {
+                action: "createOrder",
+                customerName: localStorage.getItem('velkoName') + " (" + localStorage.getItem('velkoPhone') + ")",
+                address: document.getElementById('orderAddr').value,
+                orderType: type,
+                details: details,
+                payment: document.getElementById('orderPrice').value
+            };
+
+            fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
+            .then(() => {
+                alert("Заказ в системе! Курьеры его увидят.");
+                location.reload();
+            });
         }
 
-        function showApp(role) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('register-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('hello').innerText = "Привет, " + (role === 'courier' ? "Курьер!" : "Заказчик!");
-            document.getElementById(role + '-menu').classList.remove('hidden');
-        }
+        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = function() {
-            if (localStorage.getItem('role')) showApp(localStorage.getItem('role'));
+            const role = localStorage.getItem('velkoRole');
+            if (role) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById(role + '-app').classList.remove('hidden');
+            }
         };
     </script>
 </body>
