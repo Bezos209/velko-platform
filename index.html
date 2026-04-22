@@ -5,96 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VELKO Platform</title>
     <style>
-        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; --gray: #A0A0A0; }
+        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; }
         body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .logo { font-size: 48px; font-weight: 900; color: var(--yellow); margin: 20px 0; letter-spacing: 2px; }
         .container { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 25px; box-sizing: border-box; border: 1px solid #222; }
         .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
         .btn-main { background: var(--yellow); color: #000; }
-        .btn-dark { background: #222; color: #fff; border: 1px solid #333; }
         input, select { width: 100%; padding: 16px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; box-sizing: border-box; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
-
     <div class="logo">VELKO</div>
 
     <div id="auth-screen" class="container">
         <h2 style="text-align:center">Вход</h2>
-        <select id="userRole" onchange="document.getElementById('courier-reg').className = (this.value=='courier' ? '' : 'hidden')">
+        <select id="userRole">
             <option value="customer">Я Заказчик</option>
             <option value="courier">Я Курьер</option>
         </select>
-        <input type="text" id="userName" placeholder="Имя / Название">
+        <input type="text" id="userName" placeholder="Имя">
         <input type="tel" id="userPhone" placeholder="Телефон">
-        <div id="courier-reg" class="hidden">
-            <input type="text" id="userLastName" placeholder="Фамилия">
-            <input type="text" id="userTg" placeholder="Telegram @nick">
-        </div>
-        <button class="btn btn-main" onclick="handleAuth()">ВОЙТИ</button>
+        <button class="btn btn-main" onclick="sendAuth()">ВОЙТИ</button>
     </div>
 
-    <div id="customer-app" class="container hidden">
-        <h3 style="color: var(--yellow); text-align: center;">НОВЫЙ ЗАКАЗ</h3>
-        <select id="orderType" onchange="document.getElementById('preorder').className = (this.value=='Предзаказ' ? '' : 'hidden')">
-            <option value="Онлайн">🚀 Онлайн</option>
-            <option value="Предзаказ">📅 Предзаказ</option>
-        </select>
-        <div id="preorder" class="hidden">
-            <input type="text" id="oTime" placeholder="Дата и время">
-            <input type="number" id="oCount" placeholder="Курьеров" value="1">
-        </div>
-        <input type="text" id="oAddr" placeholder="Адрес подачи">
-        <input type="number" id="oPrice" placeholder="Сумма (наличными)">
-        <button class="btn btn-main" onclick="sendOrder()">ОТПРАВИТЬ</button>
-        <button class="btn btn-dark" onclick="logout()">Выйти</button>
-    </div>
-
-    <div id="courier-app" class="container hidden">
-        <h3 style="color: var(--yellow); text-align: center;">КУРЬЕР</h3>
-        <button class="btn btn-main">🚀 БИРЖА ЗАКАЗОВ</button>
-        <button class="btn btn-dark" onclick="logout()">Выйти</button>
+    <div id="main-app" class="container hidden">
+        <h3 id="hello" style="text-align: center;"></h3>
+        <button class="btn btn-main" onclick="localStorage.clear(); location.reload();">ВЫЙТИ</button>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://google.com";
+        const URL = "https://google.com";
 
-        function handleAuth() {
+        function sendAuth() {
             const role = document.getElementById('userRole').value;
             const name = document.getElementById('userName').value;
             const phone = document.getElementById('userPhone').value;
             
-            const params = `?action=register&role=${role}&name=${name}&phone=${phone}&lastName=${document.getElementById('userLastName').value}&tg=${document.getElementById('userTg').value}`;
+            // Отправляем через невидимый запрос в фоновом режиме
+            const finalUrl = `${URL}?action=register&role=${role}&name=${encodeURIComponent(name)}&phone=${phone}`;
             
-            fetch(SCRIPT_URL + params, { mode: 'no-cors' }); // Прямой удар!
+            const img = new Image();
+            img.src = finalUrl; // Это "пробивает" любую защиту
             
             localStorage.setItem('velkoRole', role);
             localStorage.setItem('velkoName', name);
-            location.reload();
+            setTimeout(() => location.reload(), 1000);
         }
-
-        function sendOrder() {
-            const name = localStorage.getItem('velkoName');
-            const type = document.getElementById('orderType').value;
-            const addr = document.getElementById('oAddr').value;
-            const price = document.getElementById('oPrice').value;
-            const details = document.getElementById('oTime').value + " / " + document.getElementById('oCount').value + " чел";
-
-            const params = `?action=createOrder&customer=${name}&address=${addr}&type=${type}&details=${details}&payment=${price}`;
-            
-            fetch(SCRIPT_URL + params, { mode: 'no-cors' });
-            alert("Заказ отправлен!");
-            location.reload();
-        }
-
-        function logout() { localStorage.clear(); location.reload(); }
 
         window.onload = function() {
             const role = localStorage.getItem('velkoRole');
             if (role) {
                 document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById(role + '-app').classList.remove('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('hello').innerText = "Привет, " + role;
             }
         };
     </script>
