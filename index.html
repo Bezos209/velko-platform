@@ -7,18 +7,13 @@
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
         .container { max-width: 400px; margin: 0 auto; }
-        h1 { color: #FACC15; font-size: 40px; margin-bottom: 10px; }
-        p { color: #888; margin-bottom: 30px; }
-        
-        /* Кнопки выбора на главном экране */
-        .choice-btn { width: 100%; padding: 25px; margin: 10px 0; border-radius: 15px; border: 2px solid #333; background: #111; color: #fff; font-weight: bold; cursor: pointer; font-size: 18px; }
-        .choice-btn:hover { border-color: #FACC15; }
-
-        /* Стили форм */
-        .form-screen { display: none; text-align: left; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
-        .submit-btn { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; color: #000; font-size: 16px; }
-        .back-btn { background: none; border: none; color: #888; cursor: pointer; margin-top: 20px; width: 100%; }
+        h1 { color: #FACC15; font-size: 40px; }
+        .hidden { display: none; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+        .main-btn { background: #FACC15; color: #000; }
+        .sec-btn { background: #222; color: #fff; border: 1px solid #444; }
+        .card { background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -26,79 +21,107 @@
 <div class="container">
     <h1>VELKO</h1>
 
-    <!-- ГЛАВНЫЙ ЭКРАН -->
-    <div id="start-screen">
-        <p>Выберите тип аккаунта</p>
-        <button class="choice-btn" onclick="showForm('courier')">🚛 Я КУРЬЕР</button>
-        <button class="choice-btn" onclick="showForm('client')">📦 Я ЗАКАЗЧИК</button>
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="loader">Загрузка...</div>
+
+    <!-- ЭКРАН ВЫБОРА (ДЛЯ НОВЫХ) -->
+    <div id="auth-screen" class="hidden">
+        <p>Добро пожаловать в сервис</p>
+        <button class="main-btn" onclick="showReg('courier')">Я КУРЬЕР</button>
+        <button class="main-btn" style="margin-top:15px" onclick="showReg('client')">Я ЗАКАЗЧИК</button>
     </div>
 
-    <!-- ФОРМА КУРЬЕРА -->
-    <div id="courier-form" class="form-screen">
+    <!-- ФОРМЫ РЕГИСТРАЦИИ -->
+    <div id="reg-courier" class="hidden">
         <h3>Регистрация курьера</h3>
-        <input type="text" id="c-lastName" placeholder="Фамилия">
-        <input type="text" id="c-firstName" placeholder="Имя">
-        <input type="tel" id="c-phone" placeholder="Номер телефона">
-        <input type="text" id="c-tg" placeholder="Ник в Telegram (@username)">
-        <button class="submit-btn" onclick="send('courier')">ЗАРЕГИСТРИРОВАТЬСЯ</button>
-        <button class="back-btn" onclick="goBack()">← Назад</button>
+        <input type="text" id="c-f" placeholder="Фамилия">
+        <input type="text" id="c-n" placeholder="Имя">
+        <input type="tel" id="c-p" placeholder="Телефон">
+        <input type="text" id="c-t" placeholder="Telegram @username">
+        <button class="main-btn" onclick="register('courier')">СОЗДАТЬ АККАУНТ</button>
     </div>
 
-    <!-- ФОРМА ЗАКАЗЧИКА -->
-    <div id="client-form" class="form-screen">
+    <div id="reg-client" class="hidden">
         <h3>Регистрация заказчика</h3>
-        <input type="text" id="z-name" placeholder="Название компании/организации">
-        <input type="text" id="z-address" placeholder="Адрес">
-        <input type="tel" id="z-phone" placeholder="Контактный телефон">
-        <button class="submit-btn" onclick="send('client')">СТАТЬ ЗАКАЗЧИКОМ</button>
-        <button class="back-btn" onclick="goBack()">← Назад</button>
+        <input type="text" id="z-n" placeholder="Название компании">
+        <input type="text" id="z-a" placeholder="Адрес">
+        <input type="tel" id="z-p" placeholder="Телефон">
+        <button class="main-btn" onclick="register('client')">СТАТЬ ЗАКАЗЧИКОМ</button>
+    </div>
+
+    <!-- ЛИЧНЫЙ КАБИНЕТ КУРЬЕРА -->
+    <div id="lk-courier" class="hidden">
+        <h2 id="hello-c">Привет!</h2>
+        <div class="card">
+            <button class="main-btn">🚀 ВЫЙТИ НА РАБОТУ</button>
+            <button class="sec-btn" style="margin-top:10px">🛠 СЕРВИС / ЗАПЧАСТИ</button>
+            <button class="sec-btn" style="margin-top:10px">🚲 АРЕНДА ЭЛЕКТРОВЕЛО</button>
+        </div>
+        <button class="sec-btn" onclick="logout()" style="margin-top:30px">Выйти из профиля</button>
+    </div>
+
+    <!-- ЛИЧНЫЙ КАБИНЕТ ЗАКАЗЧИКА -->
+    <div id="lk-client" class="hidden">
+        <h2 id="hello-z">Заказчик</h2>
+        <div class="card">
+            <button class="main-btn">➕ СОЗДАТЬ ЗАКАЗ</button>
+            <button class="sec-btn" style="margin-top:10px">📊 МОИ ЗАКАЗЫ</button>
+        </div>
+        <button class="sec-btn" onclick="logout()" style="margin-top:30px">Выйти из профиля</button>
     </div>
 </div>
 
 <script>
-    const url = 'https://script.google.com/macros/s/AKfycbxckrWmx0mIyOStn5odC7YFaIee2WYlV2P4ajYXK3e7OPxa8WpG6zneSj3abJHoRt-a/exec';
+    const url = 'https://google.com';
 
-    function showForm(type) {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById(type + '-form').style.display = 'block';
-    }
-
-    function goBack() {
-        document.querySelectorAll('.form-screen').forEach(f => f.style.display = 'none');
-        document.getElementById('start-screen').style.display = 'block';
-    }
-
-    async function send(type) {
-        let payload = { type: type };
-        
-        if (type === 'courier') {
-            payload.lastName = document.getElementById('c-lastName').value;
-            payload.firstName = document.getElementById('c-firstName').value;
-            payload.phone = document.getElementById('c-phone').value;
-            payload.telegram = document.getElementById('c-tg').value;
+    // 1. ПРОВЕРКА ПРИ ВХОДЕ
+    window.onload = function() {
+        const user = JSON.parse(localStorage.getItem('velko_user'));
+        if (user) {
+            showLK(user.role, user.name);
         } else {
-            payload.companyName = document.getElementById('z-name').value;
-            payload.address = document.getElementById('z-address').value;
-            payload.phone = document.getElementById('z-phone').value;
+            document.getElementById('loader').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+    };
+
+    function showReg(role) {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('reg-' + role).classList.remove('hidden');
+    }
+
+    async function register(role) {
+        let data = { action: 'register', type: role };
+        if (role === 'courier') {
+            data.lastName = document.getElementById('c-f').value;
+            data.firstName = document.getElementById('c-n').value;
+            data.phone = document.getElementById('c-p').value;
+            data.telegram = document.getElementById('c-t').value;
+            data.name = data.firstName;
+        } else {
+            data.companyName = document.getElementById('z-n').value;
+            data.address = document.getElementById('z-a').value;
+            data.phone = document.getElementById('z-p').value;
+            data.name = data.companyName;
         }
 
-        const btn = event.target;
-        btn.innerText = 'ОТПРАВКА...';
-        btn.disabled = true;
+        await fetch(url, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+        
+        // Сохраняем в память телефона
+        localStorage.setItem('velko_user', JSON.stringify({role: role, name: data.name}));
+        showLK(role, data.name);
+    }
 
-        try {
-            await fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
-            alert('Успешно! Данные внесены в реестр.');
-            location.reload(); // Перезагрузка страницы после успеха
-        } catch (e) {
-            alert('Ошибка связи с сервером');
-            btn.disabled = false;
-            btn.innerText = 'ПОПРОБОВАТЬ СНОВА';
-        }
+    function showLK(role, name) {
+        document.getElementById('loader').classList.add('hidden');
+        document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+        document.getElementById('lk-' + role).classList.remove('hidden');
+        document.getElementById(role === 'courier' ? 'hello-c' : 'hello-z').innerText = 'Привет, ' + name + '!';
+    }
+
+    function logout() {
+        localStorage.removeItem('velko_user');
+        location.reload();
     }
 </script>
 
