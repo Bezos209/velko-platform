@@ -3,64 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VELKO Platform</title>
+    <title>VELKO</title>
     <style>
-        :root { --bg: #000; --card: #121212; --yellow: #FFD22F; --text: #FFF; }
-        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .logo { font-size: 48px; font-weight: 900; color: var(--yellow); margin: 20px 0; letter-spacing: 2px; }
-        .container { width: 100%; max-width: 400px; background: var(--card); border-radius: 24px; padding: 25px; box-sizing: border-box; border: 1px solid #222; }
-        .btn { width: 100%; padding: 18px; margin: 10px 0; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
-        .btn-main { background: var(--yellow); color: #000; }
-        input, select { width: 100%; padding: 16px; margin: 10px 0; background: #1A1A1A; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; box-sizing: border-box; }
+        :root { --y: #FFD22F; --b: #121212; }
+        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .logo { font-size: 48px; font-weight: 900; color: var(--y); margin: 20px 0; letter-spacing: 2px; }
+        .card { width: 100%; max-width: 400px; background: var(--b); padding: 20px; border-radius: 20px; border: 1px solid #333; box-sizing: border-box; }
+        input, select, button { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
+        input, select { background: #1A1A1A; color: #fff; border: 1px solid #333; }
+        button { background: var(--y); color: #000; font-weight: 700; cursor: pointer; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="logo">VELKO</div>
 
-    <div id="auth-screen" class="container">
-        <h2 style="text-align:center">Вход</h2>
-        <select id="userRole">
-            <option value="customer">Я Заказчик</option>
+    <!-- ВХОД -->
+    <div id="auth-screen" class="card">
+        <select id="role">
+            <option value="customer">Я Заказчик (Клиент)</option>
             <option value="courier">Я Курьер</option>
         </select>
-        <input type="text" id="userName" placeholder="Имя">
-        <input type="tel" id="userPhone" placeholder="Телефон">
-        <button class="btn btn-main" onclick="sendAuth()">ВОЙТИ</button>
+        <input type="text" id="name" placeholder="Имя / Название">
+        <input type="tel" id="phone" placeholder="79000000000">
+        <input type="text" id="addr" placeholder="Ваш адрес (для клиента)">
+        <button onclick="auth()">ВОЙТИ</button>
     </div>
 
-    <div id="main-app" class="container hidden">
-        <h3 id="hello" style="text-align: center;"></h3>
-        <button class="btn btn-main" onclick="localStorage.clear(); location.reload();">ВЫЙТИ</button>
+    <!-- КАБИНЕТ КЛИЕНТА -->
+    <div id="cust-app" class="card hidden">
+        <h3 style="color:var(--y)">НОВЫЙ ЗАКАЗ</h3>
+        <select id="oType" onchange="document.getElementById('pre').classList.toggle('hidden', this.value!='Предзаказ')">
+            <option value="Срочно">🚀 Срочно</option>
+            <option value="Предзаказ">📅 Предзаказ</option>
+        </select>
+        <div id="pre" class="hidden">
+            <input type="text" id="oDetails" placeholder="Дата, время, кол-во человек">
+        </div>
+        <input type="text" id="oAddr" placeholder="Адрес доставки">
+        <input type="number" id="oPrice" placeholder="Сумма оплаты">
+        <button onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+        <button style="background:none; color:#666" onclick="localStorage.clear(); location.reload()">Выйти</button>
+    </div>
+
+    <!-- КАБИНЕТ КУРЬЕРА -->
+    <div id="cour-app" class="card hidden">
+        <h3 style="color:var(--y)">МЕНЮ КУРЬЕРА</h3>
+        <button onclick="alert('Этап 3: Список заказов скоро!')">🚀 БИРЖА ЗАКАЗОВ</button>
+        <button style="background:#222; color:#fff">🛠 СЕРВИС</button>
+        <button style="background:none; color:#666; margin-top:20px" onclick="localStorage.clear(); location.reload()">Выйти</button>
     </div>
 
     <script>
-        const URL = "https://google.com";
+        const SCRIPT_URL = "https://google.com";
 
-        function sendAuth() {
-            const role = document.getElementById('userRole').value;
-            const name = document.getElementById('userName').value;
-            const phone = document.getElementById('userPhone').value;
+        function auth() {
+            const role = document.getElementById('role').value;
+            const phone = document.getElementById('phone').value.replace(/\D/g,'');
+            const name = document.getElementById('name').value;
+            const addr = document.getElementById('addr').value;
+
+            const url = `${SCRIPT_URL}?action=auth&role=${role}&phone=${phone}&name=${encodeURIComponent(name)}&address=${encodeURIComponent(addr)}`;
             
-            // Отправляем через невидимый запрос в фоновом режиме
-            const finalUrl = `${URL}?action=register&role=${role}&name=${encodeURIComponent(name)}&phone=${phone}`;
-            
+            // Используем "хитрый" метод отправки, который не блокирует iPhone
             const img = new Image();
-            img.src = finalUrl; // Это "пробивает" любую защиту
-            
-            localStorage.setItem('velkoRole', role);
-            localStorage.setItem('velkoName', name);
+            img.src = url;
+
+            localStorage.setItem('velko_role', role);
+            localStorage.setItem('velko_phone', phone);
             setTimeout(() => location.reload(), 1000);
         }
 
+        function sendOrder() {
+            const phone = localStorage.getItem('velko_phone');
+            const addr = document.getElementById('oAddr').value;
+            const price = document.getElementById('oPrice').value;
+            const type = document.getElementById('oType').value;
+            const details = document.getElementById('oDetails').value || "Срочно";
+
+            const url = `${SCRIPT_URL}?action=order&phone=${phone}&addr=${encodeURIComponent(addr)}&price=${price}&type=${type}&details=${encodeURIComponent(details)}`;
+            
+            const img = new Image();
+            img.src = url;
+
+            alert("Заказ отправлен!");
+            location.reload();
+        }
+
         window.onload = function() {
-            const role = localStorage.getItem('velkoRole');
+            const role = localStorage.getItem('velko_role');
             if (role) {
                 document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('hello').innerText = "Привет, " + role;
+                document.getElementById(role === 'courier' ? 'cour-app' : 'cust-app').classList.remove('hidden');
             }
-        };
+        }
     </script>
 </body>
 </html>
