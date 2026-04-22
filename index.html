@@ -1,10 +1,9 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Velko Platform</title>
-    <!-- Подключаем официальную библиотеку Supabase -->
     <script src="https://jsdelivr.net"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,7 +17,7 @@
         .client-card { background-color: #1c1c1e; color: white; border: 1px solid #2c2c2e; }
         .courier-card { background-color: #FACC15; color: black; }
         .icon { font-size: 40px; margin-right: 20px; }
-        .role-title { font-size: 20px; font-weight: 700; text-align: left; }
+        .role-title { font-size: 20px; font-weight: 700; }
         input { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; padding: 18px; border-radius: 16px; color: #fff; font-size: 16px; margin-bottom: 20px; outline: none; }
         .main-btn { width: 100%; background: #FACC15; color: #000; padding: 20px; border-radius: 20px; border: none; font-size: 18px; font-weight: 700; }
     </style>
@@ -44,41 +43,37 @@
     </div>
 
     <script>
-        const SB_URL = 'https://hjssccranfuxikqukxzg.supabase.co';
-        const SB_KEY = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
-        const supabase = supabase.createClient(SB_URL, SB_KEY);
-
-        let userRole = '';
+        // Инициализация базы
+        const client = supabase.createClient('https://supabase.co', 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8');
+        
+        let currentRole = '';
 
         function showReg(r) {
-            userRole = r;
+            currentRole = r;
             document.getElementById('rolePage').classList.remove('active');
             document.getElementById('regPage').classList.add('active');
         }
 
         async function saveUser() {
-            const name = document.getElementById('userName').value;
-            const phone = document.getElementById('userPhone').value;
-            const btn = document.getElementById('saveBtn');
+            const n = document.getElementById('userName').value;
+            const p = document.getElementById('userPhone').value;
+            const b = document.getElementById('saveBtn');
 
-            if (!name || !phone) { alert('Заполни поля!'); return; }
+            if (!n || !p) { alert('Заполни поля'); return; }
+            b.innerText = 'Сохранение...';
+            b.disabled = true;
 
-            btn.innerText = 'Связь с сервером...';
-            btn.disabled = true;
-
-            // Официальный метод записи
-            const { data, error } = await supabase
+            const { error } = await client
                 .from('profiles')
-                .insert([{ name: name, phone: phone, role: userRole }]);
+                .insert([{ name: n, phone: p, role: currentRole }]);
 
             if (error) {
-                console.error(error);
                 alert('Ошибка: ' + error.message);
-                btn.innerText = 'Ошибка';
-                btn.disabled = false;
+                b.innerText = 'Ошибка';
+                b.disabled = false;
             } else {
-                alert('ГОТОВО! Теперь Николай в базе!');
-                btn.innerText = 'Зарегистрировано ✅';
+                alert('ГОТОВО! Николай в базе!');
+                b.innerText = 'Зарегистрировано ✅';
             }
         }
     </script>
