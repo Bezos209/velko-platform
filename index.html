@@ -1,56 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velko Platform</title>
-    <style>
-        body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
-        .logo { font-size: 48px; font-weight: 900; color: #FACC15; margin-bottom: 40px; }
-        input { width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 16px; border: 1px solid #333; background: #111; color: #fff; font-size: 18px; outline: none; }
-        button { width: 100%; padding: 20px; background: #FACC15; border: none; border-radius: 20px; font-size: 20px; font-weight: 800; color: #000; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div class="logo">VELKO</div>
-    <input type="text" id="n" placeholder="Имя">
-    <input type="tel" id="p" placeholder="Телефон">
-    <button onclick="save()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
-
+<html>
+<body style="background:#000;color:#fff;font-family:sans-serif;padding:50px;text-align:center">
+    <h1>VELKO</h1>
+    <input id="n" placeholder="Имя" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none">
+    <input id="p" placeholder="Телефон" style="width:100%;padding:20px;margin:10px 0;border-radius:15px;border:none">
+    <button onclick="s()" style="width:100%;padding:20px;background:#FACC15;border-radius:15px;font-weight:bold;border:none">РЕГИСТРАЦИЯ</button>
     <script>
-        async function save() {
-            const name = document.getElementById('n').value;
-            const phone = document.getElementById('p').value;
-            if (!name || !phone) return alert('Заполни поля');
-
+        async function s() {
             const url = 'https://supabase.co';
             const key = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
-
-            // Используем "пробивной" метод через сторонний сервис, который не блокирует CORS
-            const proxyUrl = 'https://corsproxy.io?' + encodeURIComponent(url);
-
-            try {
-                const res = await fetch(proxyUrl, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': key,
-                        'Authorization': 'Bearer ' + key,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({ name: name, phone: phone, role: 'courier' })
-                });
-
-                if (res.ok) {
-                    alert('ПОБЕДА! Николай-3 в базе!');
-                } else {
-                    alert('Данные ушли, проверяй таблицу через 5 секунд!');
-                }
-            } catch (e) {
-                // Последний шанс - если даже прокси не сработал
-                navigator.sendBeacon(url + '?apikey=' + key, JSON.stringify({ name: name, phone: phone, role: 'courier' }));
-                alert('Регистрация отправлена!');
-            }
+            await fetch(url, {
+                method: 'POST',
+                headers: {'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'Prefer': 'return=minimal'},
+                body: JSON.stringify({ name: document.getElementById('n').value, phone: document.getElementById('p').value })
+            });
+            alert('ГОТОВО! ПРОВЕРЯЙ users_new!');
         }
     </script>
 </body>
