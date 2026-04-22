@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velko Platform</title>
+    <script src="https://tailwindcss.com"></script>
+    <style>
+        body { background-color: #121212; color: white; font-family: sans-serif; }
+        .btn-yellow { background-color: #FACC15; color: black; transition: 0.3s; }
+        .btn-yellow:hover { background-color: #EAB308; transform: translateY(-2px); }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md text-center">
+        <h1 class="text-4xl font-bold mb-2 text-yellow-400">VELKO</h1>
+        <p class="text-gray-400 mb-12 text-lg">Транспортная экосистема</p>
+
+        <div class="space-y-6">
+            <button onclick="selectRole('client')" class="w-full py-5 rounded-2xl text-xl font-semibold border-2 border-white/20 hover:border-yellow-400 transition-all">
+                📦 Я Заказчик
+            </button>
+
+            <button onclick="selectRole('courier')" class="w-full py-5 rounded-2xl btn-yellow text-xl font-semibold shadow-lg shadow-yellow-400/20">
+                🚴 Я Курьер
+            </button>
+        </div>
+
+        <p class="mt-16 text-gray-500 text-sm">v. 1.0.0 | Powered by Velko</p>
+    </div>
+
+    <script>
+        function selectRole(role) {
+            localStorage.setItem('userRole', role);
+            alert('Вы выбрали роль: ' + (role === 'client' ? 'Заказчик' : 'Курьер') + '. Следующий шаг: Авторизация.');
+        }
+    </script>
+</body>
+</html>
