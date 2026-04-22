@@ -3,67 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velko Go</title>
-    <script src="https://tailwindcss.com"></script>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <title>Velko Platform</title>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(250, 204, 21, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; }
+        
+        .header { text-align: center; margin-bottom: 60px; margin-top: 40px; }
+        .logo { font-size: 48px; font-weight: 900; color: #FACC15; letter-spacing: -2px; }
+        .sub-logo { font-size: 10px; color: #666; letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
+
+        .title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px; color: #eee; }
+
+        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; border: none; transition: transform 0.1s; text-decoration: none; }
+        .role-card:active { transform: scale(0.97); }
+
+        .client-card { background-color: #1c1c1e; border: 1px solid #2c2c2e; color: white; }
+        .courier-card { background-color: #FACC15; color: black; }
+
+        .icon { font-size: 40px; margin-right: 20px; }
+        .text-group { text-align: left; flex-grow: 1; }
+        .role-title { font-size: 20px; font-weight: 700; }
+        .role-desc { font-size: 14px; opacity: 0.6; margin-top: 4px; }
+        .arrow { font-size: 20px; opacity: 0.3; }
+
+        .footer { margin-top: auto; text-align: center; color: #444; font-size: 10px; letter-spacing: 1px; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen bg-black px-6 pt-20 pb-10">
-    
-    <div class="flex-grow flex flex-col items-center justify-start text-center">
-        <!-- Логотип -->
-        <div class="mb-16">
-            <h1 class="text-5xl font-black tracking-tighter text-yellow-400">VELKO</h1>
-            <div class="h-1 w-12 bg-yellow-400 mx-auto mt-2 rounded-full"></div>
-            <p class="text-gray-500 mt-4 font-medium uppercase tracking-widest text-xs">Logistic System</p>
-        </div>
+<body>
 
-        <h2 class="text-2xl font-bold mb-10 text-white/90">Кто вы сегодня?</h2>
-
-        <!-- Выбор ролей -->
-        <div class="w-full space-y-4 max-w-sm">
-            
-            <button onclick="selectRole('client')" class="w-full bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex items-center justify-between group active:scale-95 transition-all">
-                <div class="flex items-center space-x-5">
-                    <div class="text-4xl">📦</div>
-                    <div class="text-left">
-                        <div class="text-xl font-bold">Заказчик</div>
-                        <div class="text-sm text-gray-500">Нужен курьер</div>
-                    </div>
-                </div>
-                <div class="text-zinc-600 group-hover:text-yellow-400">→</div>
-            </button>
-
-            <button onclick="selectRole('courier')" class="w-full bg-yellow-400 p-6 rounded-3xl flex items-center justify-between group active:scale-95 transition-all card-shadow text-black">
-                <div class="flex items-center space-x-5">
-                    <div class="text-4xl">🚴</div>
-                    <div class="text-left">
-                        <div class="text-xl font-bold">Курьер</div>
-                        <div class="text-sm text-black/60">Хочу работать</div>
-                    </div>
-                </div>
-                <div class="text-black/40 group-hover:text-black">→</div>
-            </button>
-
-        </div>
+    <div class="header">
+        <div class="logo">VELKO</div>
+        <div class="sub-logo">Logistic System</div>
     </div>
 
-    <!-- Футер -->
-    <div class="text-center">
-        <p class="text-zinc-700 text-[10px] font-semibold uppercase tracking-widest">Platform v 1.1.0 • 2026</p>
-    </div>
+    <div class="title">Кто вы сегодня?</div>
+
+    <button class="role-card client-card" onclick="selectRole('client')">
+        <div class="icon">📦</div>
+        <div class="text-group">
+            <div class="role-title">Заказчик</div>
+            <div class="role-desc">Мне нужна доставка</div>
+        </div>
+        <div class="arrow">→</div>
+    </button>
+
+    <button class="role-card courier-card" onclick="selectRole('courier')">
+        <div class="icon">🚴</div>
+        <div class="text-group">
+            <div class="role-title">Курьер</div>
+            <div class="role-desc">Хочу заработать</div>
+        </div>
+        <div class="arrow">→</div>
+    </button>
+
+    <div class="footer">PLATFORM v 1.1.0 • 2026</div>
 
     <script>
         function selectRole(role) {
             localStorage.setItem('userRole', role);
-            // Вибрация на телефоне при нажатии
-            if (window.navigator && window.navigator.vibrate) {
-                window.navigator.vibrate(20);
-            }
-            alert('Роль выбрана: ' + (role === 'client' ? 'Заказчик' : 'Курьер'));
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(30);
+            alert('Вы выбрали роль: ' + (role === 'client' ? 'Заказчик' : 'Курьер') + '. Переходим к регистрации...');
         }
     </script>
 </body>
