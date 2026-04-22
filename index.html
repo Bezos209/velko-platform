@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Velko Platform</title>
+    <!-- Подключаем официальную библиотеку Supabase -->
+    <script src="https://jsdelivr.net"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #000; color: #fff; font-family: -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; padding: 40px 24px; }
@@ -12,7 +14,7 @@
         .header { text-align: center; margin-bottom: 50px; }
         .logo { font-size: 48px; font-weight: 900; color: #FACC15; letter-spacing: -2px; }
         .title { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 32px; }
-        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; cursor: pointer; border: none; }
+        .role-card { width: 100%; border-radius: 24px; padding: 24px; margin-bottom: 16px; display: flex; align-items: center; border: none; }
         .client-card { background-color: #1c1c1e; color: white; border: 1px solid #2c2c2e; }
         .courier-card { background-color: #FACC15; color: black; }
         .icon { font-size: 40px; margin-right: 20px; }
@@ -42,29 +44,42 @@
     </div>
 
     <script>
-        const URL = 'https://supabase.co';
-        const KEY = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
-        let role = '';
+        const SB_URL = 'https://hjssccranfuxikqukxzg.supabase.co';
+        const SB_KEY = 'sb_publishable_pZgpDpCc_EbkZ-26UW6HMg_7quVbfl8';
+        const supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        let userRole = '';
 
         function showReg(r) {
-            role = r;
+            userRole = r;
             document.getElementById('rolePage').classList.remove('active');
             document.getElementById('regPage').classList.add('active');
         }
 
-        function saveUser() {
-            const n = document.getElementById('userName').value;
-            const p = document.getElementById('userPhone').value;
-            if (!n || !p) { alert('Заполни поля'); return; }
+        async function saveUser() {
+            const name = document.getElementById('userName').value;
+            const phone = document.getElementById('userPhone').value;
+            const btn = document.getElementById('saveBtn');
 
-            document.getElementById('saveBtn').innerText = 'Отправка...';
+            if (!name || !phone) { alert('Заполни поля!'); return; }
 
-            // Используем максимально простой метод для обхода блокировок телефона
-            const img = new Image();
-            img.src = `${URL}?apikey=${KEY}&name=${encodeURIComponent(n)}&phone=${encodeURIComponent(p)}&role=${role}`;
-            
-            alert('Готово! Проверяем базу...');
-            document.getElementById('saveBtn').innerText = 'Зарегистрировано ✅';
+            btn.innerText = 'Связь с сервером...';
+            btn.disabled = true;
+
+            // Официальный метод записи
+            const { data, error } = await supabase
+                .from('profiles')
+                .insert([{ name: name, phone: phone, role: userRole }]);
+
+            if (error) {
+                console.error(error);
+                alert('Ошибка: ' + error.message);
+                btn.innerText = 'Ошибка';
+                btn.disabled = false;
+            } else {
+                alert('ГОТОВО! Теперь Николай в базе!');
+                btn.innerText = 'Зарегистрировано ✅';
+            }
         }
     </script>
 </body>
