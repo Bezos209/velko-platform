@@ -3,68 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velko - Регистрация</title>
+    <title>VELKO</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; padding: 30px; text-align: center; }
-        h1 { color: #FACC15; margin-bottom: 5px; }
-        .role-box { display: flex; gap: 10px; margin: 20px 0; }
-        .role-btn { flex: 1; padding: 15px; border: 2px solid #333; border-radius: 10px; cursor: pointer; background: #111; color: #aaa; transition: 0.3s; }
-        .role-btn.active { border-color: #FACC15; color: #FACC15; background: #222; }
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: 0 auto; }
+        h1 { color: #FACC15; font-size: 40px; margin-bottom: 10px; }
+        p { color: #888; margin-bottom: 30px; }
+        
+        /* Кнопки выбора на главном экране */
+        .choice-btn { width: 100%; padding: 25px; margin: 10px 0; border-radius: 15px; border: 2px solid #333; background: #111; color: #fff; font-weight: bold; cursor: pointer; font-size: 18px; }
+        .choice-btn:hover { border-color: #FACC15; }
+
+        /* Стили форм */
+        .form-screen { display: none; text-align: left; }
         input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
-        .main-btn { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; color: #000; font-size: 16px; }
-        .main-btn:disabled { background: #555; }
+        .submit-btn { width: 100%; padding: 18px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px; color: #000; font-size: 16px; }
+        .back-btn { background: none; border: none; color: #888; cursor: pointer; margin-top: 20px; width: 100%; }
     </style>
 </head>
 <body>
+
+<div class="container">
     <h1>VELKO</h1>
-    <p id="step-text">Кто ты сегодня?</p>
-    
-    <div class="role-box">
-        <div id="btn-client" class="role-btn" onclick="selectRole('Заказчик')">ЗАКАЗЧИК</div>
-        <div id="btn-courier" class="role-btn" onclick="selectRole('Курьер')">КУРЬЕР</div>
+
+    <!-- ГЛАВНЫЙ ЭКРАН -->
+    <div id="start-screen">
+        <p>Выберите тип аккаунта</p>
+        <button class="choice-btn" onclick="showForm('courier')">🚛 Я КУРЬЕР</button>
+        <button class="choice-btn" onclick="showForm('client')">📦 Я ЗАКАЗЧИК</button>
     </div>
 
-    <input type="text" id="name" placeholder="Твое имя">
-    <input type="tel" id="phone" placeholder="Номер телефона">
-    
-    <button id="send-btn" class="main-btn" onclick="sendData()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    <!-- ФОРМА КУРЬЕРА -->
+    <div id="courier-form" class="form-screen">
+        <h3>Регистрация курьера</h3>
+        <input type="text" id="c-lastName" placeholder="Фамилия">
+        <input type="text" id="c-firstName" placeholder="Имя">
+        <input type="tel" id="c-phone" placeholder="Номер телефона">
+        <input type="text" id="c-tg" placeholder="Ник в Telegram (@username)">
+        <button class="submit-btn" onclick="send('courier')">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        <button class="back-btn" onclick="goBack()">← Назад</button>
+    </div>
 
-    <script>
-        let selectedRole = '';
+    <!-- ФОРМА ЗАКАЗЧИКА -->
+    <div id="client-form" class="form-screen">
+        <h3>Регистрация заказчика</h3>
+        <input type="text" id="z-name" placeholder="Название компании/организации">
+        <input type="text" id="z-address" placeholder="Адрес">
+        <input type="tel" id="z-phone" placeholder="Контактный телефон">
+        <button class="submit-btn" onclick="send('client')">СТАТЬ ЗАКАЗЧИКОМ</button>
+        <button class="back-btn" onclick="goBack()">← Назад</button>
+    </div>
+</div>
 
-        function selectRole(role) {
-            selectedRole = role;
-            document.getElementById('btn-client').className = 'role-btn' + (role === 'Заказчик' ? ' active' : '');
-            document.getElementById('btn-courier').className = 'role-btn' + (role === 'Курьер' ? ' active' : '');
+<script>
+    const url = 'https://script.google.com/macros/s/AKfycbxckrWmx0mIyOStn5odC7YFaIee2WYlV2P4ajYXK3e7OPxa8WpG6zneSj3abJHoRt-a/exec';
+
+    function showForm(type) {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById(type + '-form').style.display = 'block';
+    }
+
+    function goBack() {
+        document.querySelectorAll('.form-screen').forEach(f => f.style.display = 'none');
+        document.getElementById('start-screen').style.display = 'block';
+    }
+
+    async function send(type) {
+        let payload = { type: type };
+        
+        if (type === 'courier') {
+            payload.lastName = document.getElementById('c-lastName').value;
+            payload.firstName = document.getElementById('c-firstName').value;
+            payload.phone = document.getElementById('c-phone').value;
+            payload.telegram = document.getElementById('c-tg').value;
+        } else {
+            payload.companyName = document.getElementById('z-name').value;
+            payload.address = document.getElementById('z-address').value;
+            payload.phone = document.getElementById('z-phone').value;
         }
 
-        async function sendData() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const scriptUrl = 'https://google.com';
+        const btn = event.target;
+        btn.innerText = 'ОТПРАВКА...';
+        btn.disabled = true;
 
-            if (!selectedRole) { alert('Выбери роль!'); return; }
-            if (!name || !phone) { alert('Заполни поля!'); return; }
-
-            const btn = document.getElementById('send-btn');
-            btn.innerText = 'ОТПРАВКА...';
-            btn.disabled = true;
-
-            try {
-                await fetch(scriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ name: name, phone: phone, role: selectedRole })
-                });
-
-                alert('УСПЕХ! Роль ' + selectedRole + ' сохранена.');
-                btn.innerText = 'ЗАРЕГИСТРИРОВАТЬСЯ';
-                btn.disabled = false;
-            } catch (e) {
-                alert('Ошибка!');
-                btn.disabled = false;
-            }
+        try {
+            await fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            alert('Успешно! Данные внесены в реестр.');
+            location.reload(); // Перезагрузка страницы после успеха
+        } catch (e) {
+            alert('Ошибка связи с сервером');
+            btn.disabled = false;
+            btn.innerText = 'ПОПРОБОВАТЬ СНОВА';
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
