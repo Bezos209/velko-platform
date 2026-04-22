@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velko</title>
+    <title>Velko - Регистрация</title>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; padding: 40px; text-align: center; }
-        .logo { font-size: 48px; font-weight: 900; color: #FACC15; margin-bottom: 40px; }
-        input { width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 16px; border: none; background: #1c1c1e; color: #fff; font-size: 18px; outline: none; }
-        button { width: 100%; padding: 20px; background: #FACC15; border: none; border-radius: 20px; font-size: 20px; font-weight: 800; color: #000; cursor: pointer; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #111; color: #fff; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 15px; background: #FACC15; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; color: #000; font-size: 16px; }
+        button:active { opacity: 0.8; }
     </style>
 </head>
 <body>
-    <div class="logo">VELKO</div>
-    <input type="text" id="n" placeholder="Ваше имя">
-    <input type="tel" id="p" placeholder="Телефон">
-    <button onclick="s()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+    <h1 style="color: #FACC15;">VELKO</h1>
+    <p>Регистрация курьера</p>
+    
+    <input type="text" id="name" placeholder="Твое имя">
+    <input type="tel" id="phone" placeholder="Номер телефона">
+    
+    <button onclick="sendData()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
 
     <script>
-        async function s() {
-            const name = document.getElementById('n').value;
-            const phone = document.getElementById('p').value;
-            if(!name || !phone) return alert('Заполни поля');
-
-            const url = 'https://google.com';
+        async function sendData() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
             
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, phone: phone })
-            });
+            // Твоя ссылка на Google Таблицу
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxckrWmx0mIyOStn5odC7YFaIee2WYlV2P4ajYXK3e7OPxa8WpG6zneSj3abJHoRt-a/exec';
 
-            alert('ОТПРАВЛЕНО! Николай, проверяй Гугл Таблицу!');
+            if (!name || !phone) {
+                alert('Пожалуйста, заполни имя и телефон');
+                return;
+            }
+
+            // Показываем, что процесс пошел
+            const btn = document.querySelector('button');
+            btn.innerText = 'ОТПРАВКА...';
+            btn.disabled = true;
+
+            try {
+                // Отправляем данные методом no-cors (самый простой путь для таблиц)
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, phone: phone })
+                });
+
+                alert('ГОТОВО! Теперь проверь свою таблицу через 5-10 секунд.');
+                btn.innerText = 'ЗАРЕГИСТРИРОВАТЬСЯ';
+                btn.disabled = false;
+            } catch (error) {
+                alert('Ошибка: ' + error);
+                btn.innerText = 'ОШИБКА';
+                btn.disabled = false;
+            }
         }
     </script>
 </body>
