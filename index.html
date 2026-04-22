@@ -2,37 +2,68 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Velko Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Velko Go</title>
     <script src="https://tailwindcss.com"></script>
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body { background-color: #121212; color: white; font-family: sans-serif; }
-        .btn-yellow { background-color: #FACC15; color: black; transition: 0.3s; }
-        .btn-yellow:hover { background-color: #EAB308; transform: translateY(-2px); }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(250, 204, 21, 0.1); }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-6">
-    <div class="w-full max-w-md text-center">
-        <h1 class="text-4xl font-bold mb-2 text-yellow-400">VELKO</h1>
-        <p class="text-gray-400 mb-12 text-lg">Транспортная экосистема</p>
-
-        <div class="space-y-6">
-            <button onclick="selectRole('client')" class="w-full py-5 rounded-2xl text-xl font-semibold border-2 border-white/20 hover:border-yellow-400 transition-all">
-                📦 Я Заказчик
-            </button>
-
-            <button onclick="selectRole('courier')" class="w-full py-5 rounded-2xl btn-yellow text-xl font-semibold shadow-lg shadow-yellow-400/20">
-                🚴 Я Курьер
-            </button>
+<body class="flex flex-col min-h-screen bg-black px-6 pt-20 pb-10">
+    
+    <div class="flex-grow flex flex-col items-center justify-start text-center">
+        <!-- Логотип -->
+        <div class="mb-16">
+            <h1 class="text-5xl font-black tracking-tighter text-yellow-400">VELKO</h1>
+            <div class="h-1 w-12 bg-yellow-400 mx-auto mt-2 rounded-full"></div>
+            <p class="text-gray-500 mt-4 font-medium uppercase tracking-widest text-xs">Logistic System</p>
         </div>
 
-        <p class="mt-16 text-gray-500 text-sm">v. 1.0.0 | Powered by Velko</p>
+        <h2 class="text-2xl font-bold mb-10 text-white/90">Кто вы сегодня?</h2>
+
+        <!-- Выбор ролей -->
+        <div class="w-full space-y-4 max-w-sm">
+            
+            <button onclick="selectRole('client')" class="w-full bg-zinc-900 border border-zinc-800 p-6 rounded-3xl flex items-center justify-between group active:scale-95 transition-all">
+                <div class="flex items-center space-x-5">
+                    <div class="text-4xl">📦</div>
+                    <div class="text-left">
+                        <div class="text-xl font-bold">Заказчик</div>
+                        <div class="text-sm text-gray-500">Нужен курьер</div>
+                    </div>
+                </div>
+                <div class="text-zinc-600 group-hover:text-yellow-400">→</div>
+            </button>
+
+            <button onclick="selectRole('courier')" class="w-full bg-yellow-400 p-6 rounded-3xl flex items-center justify-between group active:scale-95 transition-all card-shadow text-black">
+                <div class="flex items-center space-x-5">
+                    <div class="text-4xl">🚴</div>
+                    <div class="text-left">
+                        <div class="text-xl font-bold">Курьер</div>
+                        <div class="text-sm text-black/60">Хочу работать</div>
+                    </div>
+                </div>
+                <div class="text-black/40 group-hover:text-black">→</div>
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="text-center">
+        <p class="text-zinc-700 text-[10px] font-semibold uppercase tracking-widest">Platform v 1.1.0 • 2026</p>
     </div>
 
     <script>
         function selectRole(role) {
             localStorage.setItem('userRole', role);
-            alert('Вы выбрали роль: ' + (role === 'client' ? 'Заказчик' : 'Курьер') + '. Следующий шаг: Авторизация.');
+            // Вибрация на телефоне при нажатии
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(20);
+            }
+            alert('Роль выбрана: ' + (role === 'client' ? 'Заказчик' : 'Курьер'));
         }
     </script>
 </body>
