@@ -5,33 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VELKO Platform</title>
     <style>
-        body { 
-            font-family: sans-serif; padding: 20px; background: #000; color: white;
-            max-width: 500px; margin: auto; display: flex; flex-direction: column; align-items: center; min-height: 90vh;
-        }
-        .logo-section { text-align: center; margin-top: 50px; margin-bottom: 60px; }
+        body { font-family: sans-serif; padding: 20px; background: #000; color: white; max-width: 500px; margin: auto; display: flex; flex-direction: column; align-items: center; min-height: 90vh; }
+        .logo-section { text-align: center; margin-top: 30px; margin-bottom: 40px; }
         .logo-main { font-size: 48px; font-weight: 900; color: #FFD700; letter-spacing: 2px; }
         .logo-sub { font-size: 12px; letter-spacing: 4px; color: #888; text-transform: uppercase; }
-        h2 { font-size: 24px; margin-bottom: 30px; }
-        .choice-card {
-            width: 100%; background: #1C1C1E; border-radius: 24px; padding: 24px; margin-bottom: 16px;
-            display: flex; align-items: center; cursor: pointer; border: none; color: white; text-align: left;
-        }
+        .card { width: 100%; background: #1C1C1E; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-sizing: border-box; }
+        .choice-card { display: flex; align-items: center; cursor: pointer; border: none; color: white; text-align: left; width: 100%; }
         .courier-card { background: #FFD700; color: #000; }
-        .icon { font-size: 32px; margin-right: 20px; }
-        .text-group { flex-grow: 1; }
-        .title { font-size: 18px; font-weight: 700; display: block; }
-        .subtitle { font-size: 14px; opacity: 0.7; }
-        .arrow { font-size: 20px; opacity: 0.5; }
+        input, select, button { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
+        input, select { background: #2C2C2E; color: white; border: 1px solid #3A3A3C; }
+        .btn-main { background: #FFD700; color: #000; font-weight: bold; cursor: pointer; }
+        .btn-main:disabled { background: #555; }
         .hidden { display: none; }
-        .reg-card { background: #1C1C1E; padding: 30px; border-radius: 24px; width: 100%; box-sizing: border-box; }
-        input { 
-            width: 100%; padding: 16px; margin: 10px 0; background: #2C2C2E; 
-            border: 1px solid #3A3A3C; border-radius: 12px; color: white; font-size: 16px; 
-        }
-        .btn-reg { background: #FFD700; color: #000; font-weight: bold; border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; }
-        .btn-reg:disabled { background: #555; }
         .footer { margin-top: auto; font-size: 10px; color: #444; padding-bottom: 20px; }
+        h2 { font-size: 22px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -41,35 +28,50 @@
         <div class="logo-sub">LOGISTIC SYSTEM</div>
     </div>
 
-    <!-- ЭКРАН 1: ВЫБОР -->
+    <!-- 1. ВЫБОР РОЛИ -->
     <div id="step-choice" style="width: 100%;">
-        <h2 style="text-align: center;">Кто вы сегодня?</h2>
-        <button class="choice-card" onclick="showReg('customer')">
-            <span class="icon">📦</span>
-            <div class="text-group"><span class="title">Заказчик</span><span class="subtitle">Мне нужна доставка</span></div>
-            <span class="arrow">→</span>
+        <h2>Кто вы сегодня?</h2>
+        <button class="card choice-card" onclick="showReg('customer')">
+            <span style="font-size:32px; margin-right:20px;">📦</span>
+            <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Заказчик</span><span style="font-size:14px; opacity:0.7;">Мне нужна доставка</span></div>
+            <span>→</span>
         </button>
-        <button class="choice-card courier-card" onclick="showReg('courier')">
-            <span class="icon">🚴‍♂️</span>
-            <div class="text-group"><span class="title">Курьер</span><span class="subtitle">Хочу заработать</span></div>
-            <span class="arrow">→</span>
+        <button class="card choice-card courier-card" onclick="showReg('courier')">
+            <span style="font-size:32px; margin-right:20px;">🚴‍♂️</span>
+            <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Курьер</span><span style="font-size:14px; opacity:0.7;">Хочу заработать</span></div>
+            <span>→</span>
         </button>
     </div>
 
-    <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
-    <div id="step-reg" class="reg-card hidden">
-        <h2 id="reg-title" style="margin-top: 0;">Регистрация</h2>
+    <!-- 2. РЕГИСТРАЦИЯ -->
+    <div id="step-reg" class="card hidden">
+        <h2 id="reg-title">Регистрация</h2>
         <input type="text" id="userName" placeholder="Ваше Имя">
         <input type="tel" id="userPhone" placeholder="Номер телефона">
-        <button id="regBtn" class="btn-reg" onclick="register()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
-        <p onclick="location.reload()" style="color: #888; cursor: pointer; text-align: center; margin-top: 20px;">← Назад</p>
+        <button id="regBtn" class="btn-main" onclick="register()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
     </div>
 
-    <!-- ЭКРАН 3: УСПЕХ -->
-    <div id="step-app" class="reg-card hidden" style="text-align: center;">
-        <h2 id="welcome-text">Готово!</h2>
-        <p style="color: #888;">Вы успешно в базе системы.</p>
-        <button class="btn-reg" onclick="location.reload()">ВЫЙТИ</button>
+    <!-- 3. ФОРМА ЗАКАЗА (ДЛЯ ЗАКАЗЧИКА) -->
+    <div id="step-order" class="card hidden">
+        <h2>📦 Создать заказ</h2>
+        <select id="orderType" onchange="document.getElementById('preorder').classList.toggle('hidden', this.value !== 'Предзаказ')">
+            <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
+            <option value="Предзаказ">📅 Предзаказ</option>
+        </select>
+        <div id="preorder" class="hidden">
+            <input type="datetime-local" id="orderTime">
+            <input type="number" id="orderCount" placeholder="Кол-во курьеров">
+        </div>
+        <input type="text" id="orderAddress" placeholder="Адрес доставки">
+        <input type="number" id="orderPrice" placeholder="Сумма (руб)">
+        <button id="orderBtn" class="btn-main" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+    </div>
+
+    <!-- 4. БИРЖА (ДЛЯ КУРЬЕРА - ЗАГЛУШКА) -->
+    <div id="step-courier" class="card hidden">
+        <h2>🚴‍♂️ Биржа заказов</h2>
+        <p style="text-align:center; color:#888;">Поиск новых заказов...</p>
+        <button class="btn-main" style="background:#444; color:white;" onclick="location.reload()">ВЫЙТИ</button>
     </div>
 
     <div class="footer">PLATFORM v 1.1.0 • 2026</div>
@@ -88,42 +90,48 @@
     async function register() {
         const name = document.getElementById('userName').value.trim();
         const phone = document.getElementById('userPhone').value.trim();
-        const regBtn = document.getElementById('regBtn');
-
         if (!name || !phone) return alert('Заполните данные');
 
-        regBtn.disabled = true;
-        regBtn.innerText = "ОБРАБОТКА...";
+        document.getElementById('regBtn').disabled = true;
+        
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ action: 'register', name, phone, role: selectedRole })
+        });
 
-        // ТА САМАЯ ЛОГИКА, КОТОРАЯ РАБОТАЛА
+        localStorage.setItem('userPhone', phone);
+        localStorage.setItem('userRole', selectedRole);
+        
+        setTimeout(() => {
+            document.getElementById('step-reg').classList.add('hidden');
+            if(selectedRole === 'customer') document.getElementById('step-order').classList.remove('hidden');
+            else document.getElementById('step-courier').classList.remove('hidden');
+        }, 1000);
+    }
+
+    async function sendOrder() {
+        const address = document.getElementById('orderAddress').value;
+        const price = document.getElementById('orderPrice').value;
+        if (!address || !price) return alert('Заполните адрес и цену');
+
+        document.getElementById('orderBtn').disabled = true;
+
         const payload = {
-            action: 'register',
-            name: name,
-            phone: phone,
-            role: selectedRole
+            action: 'createOrder',
+            customerPhone: localStorage.getItem('userPhone'),
+            address: address,
+            orderType: document.getElementById('orderType').value,
+            details: document.getElementById('orderType').value === 'Предзаказ' ? `Дата: ${document.getElementById('orderTime').value}` : 'Срочно',
+            payment: price
         };
 
-        try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
-
-            // Имитируем ожидание и переключаем экран
-            setTimeout(() => {
-                localStorage.setItem('userPhone', phone);
-                localStorage.setItem('userRole', selectedRole);
-                document.getElementById('step-reg').classList.add('hidden');
-                document.getElementById('step-app').classList.remove('hidden');
-                document.getElementById('welcome-text').innerText = `Привет, ${name}!`;
-            }, 1000);
-
-        } catch (e) {
-            alert('Ошибка сети');
-            regBtn.disabled = false;
-            regBtn.innerText = "ЗАРЕГИСТРИРОВАТЬСЯ";
-        }
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        
+        alert('Заказ успешно отправлен!');
+        document.getElementById('orderBtn').disabled = false;
+        document.getElementById('orderAddress').value = '';
+        document.getElementById('orderPrice').value = '';
     }
 </script>
 </body>
