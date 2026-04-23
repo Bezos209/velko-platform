@@ -89,9 +89,11 @@
 
         if (!name || !phone) return alert('Заполните данные');
 
+        // Блокируем кнопку сразу
         regBtn.disabled = true;
         regBtn.innerText = "ОБРАБОТКА...";
 
+        // Формируем данные ТАК ЖЕ, как в прошлый раз
         const payload = {
             action: 'register',
             name: name,
@@ -100,14 +102,13 @@
         };
 
         try {
-            // Используем тот самый метод, который работал
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
 
-            // Небольшая задержка, чтобы Google успел записать
+            // Ждем секунду и переключаем экран
             setTimeout(() => {
                 localStorage.setItem('userPhone', phone);
                 localStorage.setItem('userRole', selectedRole);
