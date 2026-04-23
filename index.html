@@ -169,6 +169,30 @@
         await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'completeOrder', orderId: id }) });
         alert('Заказ выполнен!'); loadMyOrders();
     }
+    <script type="module">
+  import { initializeApp } from "https://gstatic.com/firebasejs/9.0.0/firebase-app.js";
+  import { getMessaging, getToken } from "https://gstatic.com/firebasejs/9.0.0/firebase-messaging.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAxlyFSs4qAxHuf7-fYAajAvQ7VzOVqlZA",
+    authDomain: "velco-eb20e.firebaseapp.com",
+    projectId: "velco-eb20e",
+    storageBucket: "velco-eb20e.firebasestorage.app",
+    messagingSenderId: "982912266320",
+    appId: "1:982912266320:web:45c3f753c2040b4ed6e155"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  getToken(messaging, { vapidKey: 'BD6lODfu2UCBx6rsnCK9GWLnQULFmZNCR0qoQrQ7P3VA6HUQGKIMcYDta9yZwzLA2TgQypKk_mltzHnZC6BMqiU' })
+    .then((token) => {
+      if (token) {
+        alert("ТВОЙ ТОКЕН: " + token);
+      }
+    });
+</script>
+
 </script>
 </body>
 </html>
