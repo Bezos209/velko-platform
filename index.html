@@ -10,8 +10,6 @@
         .logo-main { font-size: 48px; font-weight: 900; color: #FFD700; letter-spacing: 2px; }
         .logo-sub { font-size: 12px; letter-spacing: 4px; color: #888; text-transform: uppercase; }
         .card { width: 100%; background: #1C1C1E; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-sizing: border-box; }
-        .choice-card { display: flex; align-items: center; cursor: pointer; border: none; color: white; text-align: left; width: 100%; }
-        .courier-card { background: #FFD700; color: #000; }
         input, select, button { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
         input, select { background: #2C2C2E; color: white; border: 1px solid #3A3A3C; }
         .btn-main { background: #FFD700; color: #000; font-weight: bold; cursor: pointer; }
@@ -19,9 +17,14 @@
         .hidden { display: none; }
         .footer { margin-top: auto; font-size: 10px; color: #444; padding-bottom: 20px; }
         h2 { font-size: 22px; text-align: center; margin-bottom: 20px; }
+        
+        /* Стили для карточек заказов в бирже */
+        .order-item { background: #2C2C2E; border-radius: 16px; padding: 15px; margin-top: 15px; border-left: 4px solid #FFD700; text-align: left; }
+        .order-item p { margin: 5px 0; font-size: 14px; }
+        .order-price { font-size: 18px; font-weight: bold; color: #FFD700; }
     </style>
 </head>
-<body onload="checkAuth()"> <!-- ПРОВЕРКА ПРИ ЗАГРУЗКЕ -->
+<body onload="checkAuth()">
 
     <div class="logo-section">
         <div class="logo-main">VELKO</div>
@@ -31,12 +34,12 @@
     <!-- 1. ВЫБОР РОЛИ -->
     <div id="step-choice" class="hidden" style="width: 100%;">
         <h2>Кто вы сегодня?</h2>
-        <button class="card choice-card" onclick="showReg('customer')">
+        <button class="card" onclick="showReg('customer')" style="background:#1C1C1E; color:white; display:flex; align-items:center; text-align:left;">
             <span style="font-size:32px; margin-right:20px;">📦</span>
             <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Заказчик</span><span style="font-size:14px; opacity:0.7;">Мне нужна доставка</span></div>
             <span>→</span>
         </button>
-        <button class="card choice-card courier-card" onclick="showReg('courier')">
+        <button class="card" onclick="showReg('courier')" style="background:#FFD700; color:#000; display:flex; align-items:center; text-align:left;">
             <span style="font-size:32px; margin-right:20px;">🚴‍♂️</span>
             <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Курьер</span><span style="font-size:14px; opacity:0.7;">Хочу заработать</span></div>
             <span>→</span>
@@ -51,28 +54,23 @@
         <button id="regBtn" class="btn-main" onclick="register()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
     </div>
 
-    <!-- 3. ФОРМА ЗАКАЗА (ДЛЯ ЗАКАЗЧИКА) -->
+    <!-- 3. ФОРМА ЗАКАЗА (ЗАКАЗЧИК) -->
     <div id="step-order" class="card hidden">
         <h2>📦 Создать заказ</h2>
-        <select id="orderType" onchange="document.getElementById('preorder').classList.toggle('hidden', this.value !== 'Предзаказ')">
-            <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
-            <option value="Предзаказ">📅 Предзаказ</option>
-        </select>
-        <div id="preorder" class="hidden">
-            <input type="datetime-local" id="orderTime">
-            <input type="number" id="orderCount" placeholder="Кол-во курьеров">
-        </div>
         <input type="text" id="orderAddress" placeholder="Адрес доставки">
         <input type="number" id="orderPrice" placeholder="Сумма (руб)">
         <button id="orderBtn" class="btn-main" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-        <button onclick="logout()" style="background:none; color:#555; font-size:12px;">Выйти из аккаунта</button>
+        <button onclick="logout()" style="background:none; color:#555; font-size:12px;">Выйти</button>
     </div>
 
-    <!-- 4. БИРЖА (ДЛЯ КУРЬЕРА) -->
+    <!-- 4. БИРЖА (КУРЬЕР) -->
     <div id="step-courier" class="card hidden">
         <h2>🚴‍♂️ Биржа заказов</h2>
-        <p style="text-align:center; color:#888;">Поиск новых заказов...</p>
-        <button class="btn-main" style="background:#444; color:white; margin-top:20px;" onclick="logout()">ВЫЙТИ</button>
+        <button class="btn-main" onclick="loadOrders()">ОБНОВИТЬ СПИСОК</button>
+        <div id="ordersList">
+            <!-- Сюда будут падать заказы -->
+        </div>
+        <button onclick="logout()" style="background:none; color:#555; font-size:12px; margin-top:30px;">Выйти из аккаунта</button>
     </div>
 
     <div class="footer">PLATFORM v 1.1.0 • 2026</div>
@@ -80,82 +78,80 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpO6ChrYs9TIVKpTSEnNKphE9HebnA0OFcq3JrLzKteBFVkM1Tk31dw8wn4eW_0mXE/exec";
     
-    // --- ФУНКЦИЯ АВТО-ВХОДА ---
     function checkAuth() {
         const phone = localStorage.getItem('userPhone');
         const role = localStorage.getItem('userRole');
-
         if (phone && role) {
-            // Если данные есть, сразу открываем нужный кабинет
-            if (role === 'customer') {
-                document.getElementById('step-order').classList.remove('hidden');
-            } else {
-                document.getElementById('step-courier').classList.remove('hidden');
-            }
+            document.getElementById(role === 'customer' ? 'step-order' : 'step-courier').classList.remove('hidden');
+            if(role === 'courier') loadOrders(); // Если курьер, сразу грузим заказы
         } else {
-            // Если данных нет, показываем выбор роли
             document.getElementById('step-choice').classList.remove('hidden');
         }
     }
 
-    function logout() {
-        localStorage.clear();
+    function logout() { localStorage.clear(); location.reload(); }
+
+    async function register() {
+        const name = document.getElementById('userName').value;
+        const phone = document.getElementById('userPhone').value;
+        const role = selectedRole;
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', name, phone, role }) });
+        localStorage.setItem('userPhone', phone);
+        localStorage.setItem('userRole', role);
+        setTimeout(() => location.reload(), 1000);
+    }
+
+    async function sendOrder() {
+        const payload = {
+            action: 'createOrder',
+            customerPhone: localStorage.getItem('userPhone'),
+            address: document.getElementById('orderAddress').value,
+            orderType: 'Онлайн',
+            details: 'Срочно',
+            payment: document.getElementById('orderPrice').value
+        };
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert('Заказ отправлен!');
         location.reload();
     }
 
-    // --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) ---
-    let selectedRole = '';
+    // --- НОВАЯ ФУНКЦИЯ: ЗАГРУЗКА ЗАКАЗОВ ---
+    async function loadOrders() {
+        const listDiv = document.getElementById('ordersList');
+        listDiv.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
 
+        // Используем GET запрос для чтения (самый простой способ)
+        try {
+            const response = await fetch(SCRIPT_URL + "?action=getOrders");
+            const data = await response.json();
+            
+            listDiv.innerHTML = ''; // Очищаем текст загрузки
+
+            if (data.orders && data.orders.length > 0) {
+                data.orders.forEach(ord => {
+                    const item = document.createElement('div');
+                    item.className = 'order-item';
+                    item.innerHTML = `
+                        <p><strong>Адрес:</strong> ${ord.address}</p>
+                        <p><strong>Детали:</strong> ${ord.details}</p>
+                        <p class="order-price">${ord.payment} ₽</p>
+                        <button class="btn-main" style="padding:10px; font-size:14px;" onclick="alert('Скоро сделаем взятие заказа!')">ВЗЯТЬ ЗАКАЗ</button>
+                    `;
+                    listDiv.appendChild(item);
+                });
+            } else {
+                listDiv.innerHTML = '<p style="text-align:center; color:#555; margin-top:20px;">Новых заказов пока нет</p>';
+            }
+        } catch (e) {
+            listDiv.innerHTML = '<p style="text-align:center; color:red;">Ошибка загрузки</p>';
+        }
+    }
+
+    let selectedRole = '';
     function showReg(role) {
         selectedRole = role;
         document.getElementById('step-choice').classList.add('hidden');
         document.getElementById('step-reg').classList.remove('hidden');
-        document.getElementById('reg-title').innerText = role === 'courier' ? 'Регистрация Курьера' : 'Регистрация Заказчика';
-    }
-
-    async function register() {
-        const name = document.getElementById('userName').value.trim();
-        const phone = document.getElementById('userPhone').value.trim();
-        if (!name || !phone) return alert('Заполните данные');
-
-        document.getElementById('regBtn').disabled = true;
-        
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ action: 'register', name, phone, role: selectedRole })
-        });
-
-        localStorage.setItem('userPhone', phone);
-        localStorage.setItem('userRole', selectedRole);
-        
-        setTimeout(() => {
-            location.reload(); // Перезагружаем, чтобы сработал checkAuth
-        }, 1000);
-    }
-
-    async function sendOrder() {
-        const address = document.getElementById('orderAddress').value;
-        const price = document.getElementById('orderPrice').value;
-        if (!address || !price) return alert('Заполните адрес и цену');
-
-        document.getElementById('orderBtn').disabled = true;
-
-        const payload = {
-            action: 'createOrder',
-            customerPhone: localStorage.getItem('userPhone'),
-            address: address,
-            orderType: document.getElementById('orderType').value,
-            details: document.getElementById('orderType').value === 'Предзаказ' ? `Дата: ${document.getElementById('orderTime').value}` : 'Срочно',
-            payment: price
-        };
-
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        
-        alert('Заказ успешно отправлен!');
-        document.getElementById('orderBtn').disabled = false;
-        document.getElementById('orderAddress').value = '';
-        document.getElementById('orderPrice').value = '';
     }
 </script>
 </body>
