@@ -41,6 +41,7 @@
         <div class="logo-sub">LOGISTIC SYSTEM</div>
     </div>
 
+    <!-- ЭКРАН 1: ВЫБОР -->
     <div id="step-choice" style="width: 100%;">
         <h2 style="text-align: center;">Кто вы сегодня?</h2>
         <button class="choice-card" onclick="showReg('customer')">
@@ -55,6 +56,7 @@
         </button>
     </div>
 
+    <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
     <div id="step-reg" class="reg-card hidden">
         <h2 id="reg-title" style="margin-top: 0;">Регистрация</h2>
         <input type="text" id="userName" placeholder="Ваше Имя">
@@ -63,6 +65,7 @@
         <p onclick="location.reload()" style="color: #888; cursor: pointer; text-align: center; margin-top: 20px;">← Назад</p>
     </div>
 
+    <!-- ЭКРАН 3: УСПЕХ -->
     <div id="step-app" class="reg-card hidden" style="text-align: center;">
         <h2 id="welcome-text">Готово!</h2>
         <p style="color: #888;">Вы успешно в базе системы.</p>
@@ -89,11 +92,10 @@
 
         if (!name || !phone) return alert('Заполните данные');
 
-        // Блокируем кнопку сразу
         regBtn.disabled = true;
         regBtn.innerText = "ОБРАБОТКА...";
 
-        // Формируем данные ТАК ЖЕ, как в прошлый раз
+        // ТА САМАЯ ЛОГИКА, КОТОРАЯ РАБОТАЛА
         const payload = {
             action: 'register',
             name: name,
@@ -108,7 +110,7 @@
                 body: JSON.stringify(payload)
             });
 
-            // Ждем секунду и переключаем экран
+            // Имитируем ожидание и переключаем экран
             setTimeout(() => {
                 localStorage.setItem('userPhone', phone);
                 localStorage.setItem('userRole', selectedRole);
