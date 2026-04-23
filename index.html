@@ -21,7 +21,7 @@
         h2 { font-size: 22px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
-<body>
+<body onload="checkAuth()"> <!-- ПРОВЕРКА ПРИ ЗАГРУЗКЕ -->
 
     <div class="logo-section">
         <div class="logo-main">VELKO</div>
@@ -29,7 +29,7 @@
     </div>
 
     <!-- 1. ВЫБОР РОЛИ -->
-    <div id="step-choice" style="width: 100%;">
+    <div id="step-choice" class="hidden" style="width: 100%;">
         <h2>Кто вы сегодня?</h2>
         <button class="card choice-card" onclick="showReg('customer')">
             <span style="font-size:32px; margin-right:20px;">📦</span>
@@ -65,19 +65,45 @@
         <input type="text" id="orderAddress" placeholder="Адрес доставки">
         <input type="number" id="orderPrice" placeholder="Сумма (руб)">
         <button id="orderBtn" class="btn-main" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+        <button onclick="logout()" style="background:none; color:#555; font-size:12px;">Выйти из аккаунта</button>
     </div>
 
-    <!-- 4. БИРЖА (ДЛЯ КУРЬЕРА - ЗАГЛУШКА) -->
+    <!-- 4. БИРЖА (ДЛЯ КУРЬЕРА) -->
     <div id="step-courier" class="card hidden">
         <h2>🚴‍♂️ Биржа заказов</h2>
         <p style="text-align:center; color:#888;">Поиск новых заказов...</p>
-        <button class="btn-main" style="background:#444; color:white;" onclick="location.reload()">ВЫЙТИ</button>
+        <button class="btn-main" style="background:#444; color:white; margin-top:20px;" onclick="logout()">ВЫЙТИ</button>
     </div>
 
     <div class="footer">PLATFORM v 1.1.0 • 2026</div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpO6ChrYs9TIVKpTSEnNKphE9HebnA0OFcq3JrLzKteBFVkM1Tk31dw8wn4eW_0mXE/exec";
+    
+    // --- ФУНКЦИЯ АВТО-ВХОДА ---
+    function checkAuth() {
+        const phone = localStorage.getItem('userPhone');
+        const role = localStorage.getItem('userRole');
+
+        if (phone && role) {
+            // Если данные есть, сразу открываем нужный кабинет
+            if (role === 'customer') {
+                document.getElementById('step-order').classList.remove('hidden');
+            } else {
+                document.getElementById('step-courier').classList.remove('hidden');
+            }
+        } else {
+            // Если данных нет, показываем выбор роли
+            document.getElementById('step-choice').classList.remove('hidden');
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    // --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) ---
     let selectedRole = '';
 
     function showReg(role) {
@@ -104,9 +130,7 @@
         localStorage.setItem('userRole', selectedRole);
         
         setTimeout(() => {
-            document.getElementById('step-reg').classList.add('hidden');
-            if(selectedRole === 'customer') document.getElementById('step-order').classList.remove('hidden');
-            else document.getElementById('step-courier').classList.remove('hidden');
+            location.reload(); // Перезагружаем, чтобы сработал checkAuth
         }, 1000);
     }
 
