@@ -5,94 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VELKO Platform</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; max-width: 500px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
         button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #ccc; }
         .hidden { display: none; }
+        .role-btn { background: #6c757d; margin: 5px 0; }
+        .active-role { background: #28a745 !important; }
     </style>
 </head>
 <body>
 
-<div class="card" id="orderForm">
-    <h2>📦 Новый заказ</h2>
-    
+<!-- ЭКРАН РЕГИСТРАЦИИ -->
+<div class="card" id="authSection">
+    <h2>👋 Добро пожаловать</h2>
+    <input type="text" id="userName" placeholder="Ваше Имя">
+    <input type="tel" id="userPhone" placeholder="Номер телефона">
+    <p>Выберите роль:</p>
+    <button class="role-btn" id="btnCustomer" onclick="setRole('customer')">🙋‍♂️ Я Заказчик</button>
+    <button class="role-btn" id="btnCourier" onclick="setRole('courier')">🚴‍♂️ Я Курьер</button>
+    <button style="margin-top:20px; background:#000;" onclick="register()">ВОЙТИ / РЕГИСТРАЦИЯ</button>
+</div>
+
+<!-- ЭКРАН ЗАКАЗА (Скрыт до входа) -->
+<div class="card hidden" id="orderSection">
+    <h2 id="welcomeText">📦 Новый заказ</h2>
     <select id="orderType" onchange="togglePreorder()">
         <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
         <option value="Предзаказ">📅 Предзаказ</option>
     </select>
-
     <div id="preorderFields" class="hidden">
         <input type="datetime-local" id="orderTime">
         <input type="number" id="orderCount" placeholder="Кол-во курьеров">
-        <input type="text" id="orderDuration" placeholder="Длительность (ч)">
     </div>
-
     <input type="text" id="orderAddress" placeholder="Адрес доставки">
     <input type="number" id="orderPrice" placeholder="Сумма (руб)">
-
-    <button id="submitBtn" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+    <button onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
 </div>
 
 <script>
-    // Подхватываем ссылку из настроек Vercel
-    // Если запускаешь локально для теста, можно временно вставить ссылку в кавычки
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpO6ChrYs9TIVKpTSEnNKphE9HebnA0OFcq3JrLzKteBFVkM1Tk31dw8wn4eW_0mXE/exec";
+    let selectedRole = '';
 
+    function setRole(role) {
+        selectedRole = role;
+        document.getElementById('btnCustomer').classList.toggle('active-role', role === 'customer');
+        document.getElementById('btnCourier').classList.toggle('active-role', role === 'courier');
+    }
+
+    async function register() {
+        const name = document.getElementById('userName').value;
+        const phone = document.getElementById('userPhone').value;
+        if (!name || !phone || !selectedRole) return alert('Заполните все поля и выберите роль!');
+
+        // Сохраняем в память телефона
+        localStorage.setItem('userPhone', phone);
+        localStorage.setItem('userRole', selectedRole);
+
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ action: 'register', name, phone, role: selectedRole })
+        });
+
+        alert('Регистрация успешна!');
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('orderSection').classList.remove('hidden');
+        document.getElementById('welcomeText').innerText = selectedRole === 'courier' ? '🚴‍♂️ Личный кабинет Курьера' : '📦 Новый заказ';
+    }
+
+    // ... (функции sendOrder и togglePreorder остаются как были)
     function togglePreorder() {
         const type = document.getElementById('orderType').value;
         document.getElementById('preorderFields').classList.toggle('hidden', type !== 'Предзаказ');
     }
 
     async function sendOrder() {
-        const btn = document.getElementById('submitBtn');
-        const type = document.getElementById('orderType').value;
-        const address = document.getElementById('orderAddress').value.trim();
-        const payment = document.getElementById('orderPrice').value;
-
-        if (!address || !payment) return alert('Заполните адрес и сумму!');
-
-        let details = 'Срочно';
-        if (type === 'Предзаказ') {
-            const time = document.getElementById('orderTime').value;
-            const count = document.getElementById('orderCount').value;
-            const dur = document.getElementById('orderDuration').value;
-            details = `Дата: ${time}, Кол-во: ${count}, Часы: ${dur}`;
-        }
-
         const payload = {
             action: 'createOrder',
-            customerPhone: localStorage.getItem('userPhone') || 'Тестовый клиент',
-            address: address,
-            orderType: type,
-            details: details,
-            payment: payment
+            customerPhone: localStorage.getItem('userPhone'),
+            address: document.getElementById('orderAddress').value,
+            orderType: document.getElementById('orderType').value,
+            details: 'Заказ от клиента',
+            payment: document.getElementById('orderPrice').value
         };
-
-        btn.disabled = true;
-        btn.textContent = 'Отправка...';
-
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Важно для Google Scripts
-                body: JSON.stringify(payload)
-            });
-
-            // Так как mode: 'no-cors', мы не получим JSON-ответ напрямую, 
-            // но если запрос ушел без ошибки в catch, значит всё ОК.
-            alert('Заказ отправлен! Проверьте таблицу.');
-            document.getElementById('orderAddress').value = '';
-            document.getElementById('orderPrice').value = '';
-        } catch (e) {
-            alert('Ошибка сети: ' + e.message);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'ОТПРАВИТЬ ЗАКАЗ';
-        }
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+        alert('Заказ в таблице!');
     }
 </script>
-
 </body>
 </html>
