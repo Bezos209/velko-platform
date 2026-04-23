@@ -5,92 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VELKO Platform</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; max-width: 500px; margin: auto; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
+        /* Общие стили для фона как на макете */
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            background: #000; /* Глубокий черный фон */
+            color: white;
+            max-width: 500px; 
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 90vh;
+        }
+
+        .logo-section { text-align: center; margin-top: 50px; margin-bottom: 60px; }
+        .logo-main { font-size: 48px; font-weight: 900; color: #FFD700; letter-spacing: 2px; margin-bottom: 5px; }
+        .logo-sub { font-size: 12px; letter-spacing: 4px; color: #888; text-transform: uppercase; }
+
+        h2 { font-size: 24px; font-weight: 600; margin-bottom: 30px; }
+
+        /* Стили карточек-кнопок */
+        .choice-card {
+            width: 100%;
+            background: #1C1C1E; /* Темно-серый как в iOS */
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            color: white;
+            text-align: left;
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        .choice-card:active { transform: scale(0.98); }
+
+        /* Желтая карточка курьера */
+        .courier-card { background: #FFD700; color: #000; }
+
+        .icon { font-size: 32px; margin-right: 20px; }
+        
+        .text-group { flex-grow: 1; }
+        .title { font-size: 18px; font-weight: 700; display: block; }
+        .subtitle { font-size: 14px; opacity: 0.7; }
+
+        .arrow { font-size: 20px; opacity: 0.5; }
+
+        /* Футер */
+        .footer { 
+            margin-top: auto; 
+            font-size: 10px; 
+            color: #444; 
+            letter-spacing: 1px;
+            padding-bottom: 20px;
+        }
+
         .hidden { display: none; }
-        .role-btn { background: #6c757d; margin: 5px 0; }
-        .active-role { background: #28a745 !important; }
+
+        /* Стили для формы регистрации (тоже в темном стиле) */
+        .reg-card { background: #1C1C1E; padding: 30px; border-radius: 24px; width: 100%; box-sizing: border-box; }
+        input { 
+            width: 100%; padding: 16px; margin: 10px 0; 
+            background: #2C2C2E; border: 1px solid #3A3A3C; 
+            border-radius: 12px; color: white; font-size: 16px; 
+        }
+        .btn-reg { background: #FFD700; color: #000; font-weight: bold; border: none; padding: 16px; border-radius: 12px; width: 100%; cursor: pointer; margin-top: 10px; }
+        .btn-reg:disabled { background: #555; }
     </style>
 </head>
 <body>
 
-<!-- ЭКРАН РЕГИСТРАЦИИ -->
-<div class="card" id="authSection">
-    <h2>👋 Добро пожаловать</h2>
-    <input type="text" id="userName" placeholder="Ваше Имя">
-    <input type="tel" id="userPhone" placeholder="Номер телефона">
-    <p>Выберите роль:</p>
-    <button class="role-btn" id="btnCustomer" onclick="setRole('customer')">🙋‍♂️ Я Заказчик</button>
-    <button class="role-btn" id="btnCourier" onclick="setRole('courier')">🚴‍♂️ Я Курьер</button>
-    <button style="margin-top:20px; background:#000;" onclick="register()">ВОЙТИ / РЕГИСТРАЦИЯ</button>
-</div>
-
-<!-- ЭКРАН ЗАКАЗА (Скрыт до входа) -->
-<div class="card hidden" id="orderSection">
-    <h2 id="welcomeText">📦 Новый заказ</h2>
-    <select id="orderType" onchange="togglePreorder()">
-        <option value="Онлайн (Срочно)">🚀 Онлайн (Срочно)</option>
-        <option value="Предзаказ">📅 Предзаказ</option>
-    </select>
-    <div id="preorderFields" class="hidden">
-        <input type="datetime-local" id="orderTime">
-        <input type="number" id="orderCount" placeholder="Кол-во курьеров">
+    <div class="logo-section">
+        <div class="logo-main">VELKO</div>
+        <div class="logo-sub">LOGISTIC SYSTEM</div>
     </div>
-    <input type="text" id="orderAddress" placeholder="Адрес доставки">
-    <input type="number" id="orderPrice" placeholder="Сумма (руб)">
-    <button onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-</div>
+
+    <!-- ЭКРАН 1: ВЫБОР РОЛИ -->
+    <div id="step-choice" style="width: 100%;">
+        <h2 style="text-align: center;">Кто вы сегодня?</h2>
+        
+        <button class="choice-card" onclick="showReg('customer')">
+            <span class="icon">📦</span>
+            <div class="text-group">
+                <span class="title">Заказчик</span>
+                <span class="subtitle">Мне нужна доставка</span>
+            </div>
+            <span class="arrow">→</span>
+        </button>
+
+        <button class="choice-card courier-card" onclick="showReg('courier')">
+            <span class="icon">🚴‍♂️</span>
+            <div class="text-group">
+                <span class="title">Курьер</span>
+                <span class="subtitle">Хочу заработать</span>
+            </div>
+            <span class="arrow">→</span>
+        </button>
+    </div>
+
+    <!-- ЭКРАН 2: РЕГИСТРАЦИЯ -->
+    <div id="step-reg" class="reg-card hidden">
+        <h2 id="reg-title" style="margin-top: 0;">Регистрация</h2>
+        <input type="text" id="userName" placeholder="Ваше Имя">
+        <input type="tel" id="userPhone" placeholder="Номер телефона">
+        <button id="regBtn" class="btn-reg" onclick="register()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+        <p onclick="location.reload()" style="color: #888; cursor: pointer; font-size: 14px; margin-top: 20px;">← Назад</p>
+    </div>
+
+    <!-- ЭКРАН 3: УСПЕХ -->
+    <div id="step-app" class="reg-card hidden">
+        <h2 id="welcome-text">Готово!</h2>
+        <p style="color: #888;">Вы успешно в базе системы.</p>
+        <button class="btn-reg" onclick="location.reload()">ВЫЙТИ</button>
+    </div>
+
+    <div class="footer">PLATFORM v 1.1.0 • 2026</div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpO6ChrYs9TIVKpTSEnNKphE9HebnA0OFcq3JrLzKteBFVkM1Tk31dw8wn4eW_0mXE/exec";
     let selectedRole = '';
 
-    function setRole(role) {
+    function showReg(role) {
         selectedRole = role;
-        document.getElementById('btnCustomer').classList.toggle('active-role', role === 'customer');
-        document.getElementById('btnCourier').classList.toggle('active-role', role === 'courier');
+        document.getElementById('step-choice').classList.add('hidden');
+        document.getElementById('step-reg').classList.remove('hidden');
+        document.getElementById('reg-title').innerText = role === 'courier' ? 'Регистрация Курьера' : 'Регистрация Заказчика';
     }
 
     async function register() {
-        const name = document.getElementById('userName').value;
-        const phone = document.getElementById('userPhone').value;
-        if (!name || !phone || !selectedRole) return alert('Заполните все поля и выберите роль!');
+        const name = document.getElementById('userName').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
+        const regBtn = document.getElementById('regBtn');
 
-        // Сохраняем в память телефона
-        localStorage.setItem('userPhone', phone);
-        localStorage.setItem('userRole', selectedRole);
+        if (!name || !phone) return alert('Пожалуйста, заполните данные');
 
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ action: 'register', name, phone, role: selectedRole })
-        });
+        regBtn.disabled = true;
+        regBtn.innerText = "ОБРАБОТКА...";
 
-        alert('Регистрация успешна!');
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('orderSection').classList.remove('hidden');
-        document.getElementById('welcomeText').innerText = selectedRole === 'courier' ? '🚴‍♂️ Личный кабинет Курьера' : '📦 Новый заказ';
-    }
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'register', name, phone, role: selectedRole })
+            });
 
-    // ... (функции sendOrder и togglePreorder остаются как были)
-    function togglePreorder() {
-        const type = document.getElementById('orderType').value;
-        document.getElementById('preorderFields').classList.toggle('hidden', type !== 'Предзаказ');
-    }
+            localStorage.setItem('userPhone', phone);
+            localStorage.setItem('userRole', selectedRole);
 
-    async function sendOrder() {
-        const payload = {
-            action: 'createOrder',
-            customerPhone: localStorage.getItem('userPhone'),
-            address: document.getElementById('orderAddress').value,
-            orderType: document.getElementById('orderType').value,
-            details: 'Заказ от клиента',
-            payment: document.getElementById('orderPrice').value
-        };
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-        alert('Заказ в таблице!');
+            document.getElementById('step-reg').classList.add('hidden');
+            document.getElementById('step-app').classList.remove('hidden');
+            document.getElementById('welcome-text').innerText = `Привет, ${name}!`;
+        } catch (e) {
+            alert('Ошибка сети');
+            regBtn.disabled = false;
+            regBtn.innerText = "ЗАРЕГИСТРИРОВАТЬСЯ";
+        }
     }
 </script>
 </body>
