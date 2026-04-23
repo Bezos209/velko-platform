@@ -169,7 +169,7 @@
         await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'completeOrder', orderId: id }) });
         alert('Заказ выполнен!'); loadMyOrders();
     }
-    <script type="module">
+   <script type="module">
   import { initializeApp } from "https://gstatic.com/firebasejs/9.0.0/firebase-app.js";
   import { getMessaging, getToken } from "https://gstatic.com/firebasejs/9.0.0/firebase-messaging.js";
 
@@ -186,11 +186,12 @@
   const messaging = getMessaging(app);
 
   getToken(messaging, { vapidKey: 'BD6lODfu2UCBx6rsnCK9GWLnQULFmZNCR0qoQrQ7P3VA6HUQGKIMcYDta9yZwzLA2TgQypKk_mltzHnZC6BMqiU' })
-    .then((token) => {
-      if (token) {
-        alert("ТВОЙ ТОКЕН: " + token);
+    .then((t) => {
+      if (t) {
+        console.log("ТВОЙ ТОКЕН:");
+        console.log(t);
       }
-    });
+    }).catch((e) => console.log("Ошибка:", e));
 </script>
 
 </script>
