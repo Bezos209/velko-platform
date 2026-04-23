@@ -6,19 +6,18 @@
     <title>VELKO Platform</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #000; color: white; max-width: 500px; margin: auto; display: flex; flex-direction: column; align-items: center; min-height: 90vh; }
-        .logo-section { text-align: center; margin-top: 30px; margin-bottom: 40px; }
+        .logo-section { text-align: center; margin-top: 20px; margin-bottom: 30px; }
         .logo-main { font-size: 48px; font-weight: 900; color: #FFD700; letter-spacing: 2px; }
-        .logo-sub { font-size: 12px; letter-spacing: 4px; color: #888; text-transform: uppercase; }
-        .card { width: 100%; background: #1C1C1E; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-sizing: border-box; }
-        input, select, button { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
-        input, select { background: #2C2C2E; color: white; border: 1px solid #3A3A3C; }
+        .logo-sub { font-size: 10px; letter-spacing: 4px; color: #444; }
+        .card { width: 100%; background: #1C1C1E; border-radius: 24px; padding: 20px; margin-bottom: 16px; box-sizing: border-box; }
+        input, button { width: 100%; padding: 16px; margin: 8px 0; border-radius: 12px; border: none; font-size: 16px; box-sizing: border-box; }
+        input { background: #2C2C2E; color: white; border: 1px solid #3A3A3C; }
         .btn-main { background: #FFD700; color: #000; font-weight: bold; cursor: pointer; }
-        .btn-main:disabled { background: #555; }
         .hidden { display: none; }
-        .footer { margin-top: auto; font-size: 10px; color: #444; padding-bottom: 20px; }
-        .order-item { background: #2C2C2E; border-radius: 16px; padding: 15px; margin-top: 15px; border-left: 4px solid #FFD700; text-align: left; }
-        .order-price { font-size: 18px; font-weight: bold; color: #FFD700; margin: 5px 0; }
-        .logout-btn { background: none; color: #555; font-size: 12px; margin-top: 20px; text-decoration: underline; cursor: pointer; border: none; }
+        .order-item { background: #2C2C2E; border-radius: 16px; padding: 15px; margin-top: 10px; border-left: 4px solid #FFD700; text-align: left; }
+        .tabs { display: flex; gap: 10px; width: 100%; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 10px; background: #1C1C1E; border-radius: 10px; text-align: center; cursor: pointer; font-size: 12px; opacity: 0.5; }
+        .tab.active { opacity: 1; background: #2C2C2E; border: 1px solid #FFD700; }
     </style>
 </head>
 <body onload="checkAuth()">
@@ -28,113 +27,114 @@
         <div class="logo-sub">LOGISTIC SYSTEM</div>
     </div>
 
+    <!-- 1. ВЫБОР -->
     <div id="step-choice" class="hidden" style="width: 100%;">
-        <button class="card" onclick="showReg('customer')" style="background:#1C1C1E; color:white; border:none; display:flex; align-items:center;">
-            <span style="font-size:32px; margin-right:20px;">📦</span>
-            <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Заказчик</span><span style="font-size:14px; opacity:0.7;">Мне нужна доставка</span></div>
-        </button>
-        <button class="card" onclick="showReg('courier')" style="background:#FFD700; color:#000; border:none; display:flex; align-items:center;">
-            <span style="font-size:32px; margin-right:20px;">🚴‍♂️</span>
-            <div style="flex-grow:1;"><span style="font-weight:700; font-size:18px; display:block;">Курьер</span><span style="font-size:14px; opacity:0.7;">Хочу заработать</span></div>
-        </button>
+        <button class="card" onclick="showReg('customer')" style="background:#1C1C1E; color:white;">Заказчик →</button>
+        <button class="card" onclick="showReg('courier')" style="background:#FFD700; color:#000;">Курьер →</button>
     </div>
 
+    <!-- 2. РЕГИСТРАЦИЯ -->
     <div id="step-reg" class="card hidden">
         <h2 id="reg-title">Регистрация</h2>
         <input type="text" id="userName" placeholder="Ваше Имя">
         <input type="tel" id="userPhone" placeholder="Номер телефона">
+        <input type="text" id="userExtra" placeholder="Telegram (@username)">
         <button id="regBtn" class="btn-main" onclick="register()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
     </div>
 
+    <!-- 3. ЗАКАЗЧИК -->
     <div id="step-order" class="card hidden">
         <h2>📦 Создать заказ</h2>
         <input type="text" id="orderAddress" placeholder="Адрес доставки">
         <input type="number" id="orderPrice" placeholder="Сумма (руб)">
         <button id="orderBtn" class="btn-main" onclick="sendOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
-        <button class="logout-btn" onclick="logout()">Выйти</button>
+        <button onclick="logout()" style="background:none; color:#555;">Выйти</button>
     </div>
 
-    <div id="step-courier" class="card hidden">
-        <h2>🚴‍♂️ Биржа заказов</h2>
-        <button class="btn-main" onclick="loadOrders()">ОБНОВИТЬ СПИСОК</button>
-        <div id="ordersList"></div>
-        <button class="logout-btn" onclick="logout()">Выйти</button>
-    </div>
+    <!-- 4. КУРЬЕР -->
+    <div id="step-courier" class="hidden" style="width:100%;">
+        <div class="tabs">
+            <div id="tab1" class="tab active" onclick="switchTab(1)">БИРЖА</div>
+            <div id="tab2" class="tab" onclick="switchTab(2)">МОИ ЗАКАЗЫ</div>
+        </div>
+        
+        <div id="pane1" class="card">
+            <button class="btn-main" onclick="loadOrders()">ОБНОВИТЬ БИРЖУ</button>
+            <div id="ordersList"></div>
+        </div>
 
-    <div class="footer">PLATFORM v 1.1.0 • 2026</div>
+        <div id="pane2" class="card hidden">
+            <button class="btn-main" onclick="loadMyOrders()">ОБНОВИТЬ МОИ</button>
+            <div id="myOrdersList"></div>
+        </div>
+        <button onclick="logout()" style="background:none; color:#555; width:100%;">Выйти</button>
+    </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpO6ChrYs9TIVKpTSEnNKphE9HebnA0OFcq3JrLzKteBFVkM1Tk31dw8wn4eW_0mXE/exec";
+    let selectedRole = '';
 
     function checkAuth() {
-        const phone = localStorage.getItem('userPhone');
-        const role = localStorage.getItem('userRole');
+        const phone = localStorage.getItem('userPhone'), role = localStorage.getItem('userRole');
         if (phone && role) {
             document.getElementById(role === 'customer' ? 'step-order' : 'step-courier').classList.remove('hidden');
             if(role === 'courier') loadOrders();
-        } else {
-            document.getElementById('step-choice').classList.remove('hidden');
-        }
+        } else { document.getElementById('step-choice').classList.remove('hidden'); }
     }
 
     function logout() { localStorage.clear(); location.reload(); }
-
-    function showReg(role) {
-        selectedRole = role;
-        document.getElementById('step-choice').classList.add('hidden');
-        document.getElementById('step-reg').classList.remove('hidden');
-        document.getElementById('reg-title').innerText = role === 'courier' ? 'Регистрация Курьера' : 'Регистрация Заказчика';
-    }
-
-    let selectedRole = '';
+    function showReg(role) { selectedRole = role; document.getElementById('step-choice').classList.add('hidden'); document.getElementById('step-reg').classList.remove('hidden'); }
 
     async function register() {
-        const name = document.getElementById('userName').value;
-        const phone = document.getElementById('userPhone').value;
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', name, phone, role: selectedRole }) });
-        localStorage.setItem('userPhone', phone);
-        localStorage.setItem('userRole', selectedRole);
+        const name = document.getElementById('userName').value, phone = document.getElementById('userPhone').value, extra = document.getElementById('userExtra').value;
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'register', name, phone, role: selectedRole, extra }) });
+        localStorage.setItem('userPhone', phone); localStorage.setItem('userRole', selectedRole);
         setTimeout(() => location.reload(), 1000);
     }
 
     async function sendOrder() {
-        const address = document.getElementById('orderAddress').value;
-        const price = document.getElementById('orderPrice').value;
-        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'createOrder', customerPhone: localStorage.getItem('userPhone'), address, orderType: 'Онлайн', details: 'Срочно', payment: price }) });
-        alert('Заказ отправлен!');
-        location.reload();
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'createOrder', customerPhone: localStorage.getItem('userPhone'), address: document.getElementById('orderAddress').value, payment: document.getElementById('orderPrice').value }) });
+        alert('Заказ в таблице!'); location.reload();
+    }
+
+    function switchTab(n) {
+        document.getElementById('pane1').classList.toggle('hidden', n !== 1);
+        document.getElementById('pane2').classList.toggle('hidden', n !== 2);
+        document.getElementById('tab1').classList.toggle('active', n === 1);
+        document.getElementById('tab2').classList.toggle('active', n === 2);
+        if(n === 2) loadMyOrders();
     }
 
     async function loadOrders() {
-        const listDiv = document.getElementById('ordersList');
-        listDiv.innerHTML = '<p style="text-align:center; color:#888;">Загрузка...</p>';
-        try {
-            const response = await fetch(SCRIPT_URL + "?action=getOrders");
-            const data = await response.json();
-            listDiv.innerHTML = '';
-            data.orders.forEach(ord => {
-                const item = document.createElement('div');
-                item.className = 'order-item';
-                item.innerHTML = `<p><strong>Адрес:</strong> ${ord.address}</p><p class="order-price">${ord.payment} ₽</p><button class="btn-main" style="padding:10px;" onclick="claimOrder('${ord.orderId}', this)">ВЗЯТЬ ЗАКАЗ</button>`;
-                listDiv.appendChild(item);
-            });
-        } catch (e) { listDiv.innerHTML = '<p style="text-align:center;">Заказов пока нет</p>'; }
+        const res = await fetch(SCRIPT_URL + "?action=getOrders");
+        const data = await res.json();
+        const list = document.getElementById('ordersList'); list.innerHTML = '';
+        data.orders.forEach(o => {
+            const div = document.createElement('div'); div.className = 'order-item';
+            div.innerHTML = `<p>${o.address}</p><p><b>${o.payment} ₽</b></p><button class="btn-main" onclick="claim('${o.orderId}')">ВЗЯТЬ</button>`;
+            list.appendChild(div);
+        });
     }
 
-    // --- ФУНКЦИЯ ВЗЯТИЯ ЗАКАЗА ---
-    async function claimOrder(id, btn) {
-        btn.disabled = true;
-        btn.innerText = "ЗАГРУЗКА...";
-        const courierPhone = localStorage.getItem('userPhone');
-        
-        await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: JSON.stringify({ action: 'claimOrder', orderId: id, courierPhone: courierPhone }) 
+    async function loadMyOrders() {
+        const res = await fetch(SCRIPT_URL + "?action=getMyOrders&phone=" + localStorage.getItem('userPhone'));
+        const data = await res.json();
+        const list = document.getElementById('myOrdersList'); list.innerHTML = '';
+        data.orders.forEach(o => {
+            const div = document.createElement('div'); div.className = 'order-item';
+            div.innerHTML = `<p>${o.address}</p><p><b>${o.payment} ₽</b></p><button class="btn-main" style="background:#28a745;" onclick="complete('${o.orderId}')">ЗАВЕРШИТЬ</button>`;
+            list.appendChild(div);
         });
+    }
 
-        alert('Заказ взят! Теперь он в вашей таблице.');
-        loadOrders(); // Обновляем список, чтобы заказ исчез
+    async function claim(id) {
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'claimOrder', orderId: id, courierPhone: localStorage.getItem('userPhone') }) });
+        alert('Заказ взят!'); loadOrders();
+    }
+
+    async function complete(id) {
+        await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'completeOrder', orderId: id }) });
+        alert('Выполнено!'); loadMyOrders();
     }
 </script>
 </body>
